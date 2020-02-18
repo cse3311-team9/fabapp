@@ -190,6 +190,17 @@ elseif (isset($_SESSION['error_msg']) && $_SESSION['error_msg']!= ""){
 				else {?>
 					<li class="dropdown">
 						<a class="dropdown-toggle" data-toggle="dropdown" href="#">
+							<i class="fas fa-bell fa-2x"></i> <i class="fas fa-caret-down"></i>
+						</a>
+						<ul class="dropdown-menu dropdown-user">
+							<li><a href="/pages/info.php" onclick="loadingModal()"><i class="fas fa-info"></i> Notification</a></li>
+							<li class="divider"></li>
+						</ul>
+						<!-- /.dropdown-user -->
+					</li>
+
+					<li class="dropdown">
+						<a class="dropdown-toggle" data-toggle="dropdown" href="#">
 							<i class="<?php echo $staff->getIcon();?> fa-2x"></i> <i class="fas fa-caret-down"></i>
 						</a>
 						<ul class="dropdown-menu dropdown-user">
