@@ -188,15 +188,21 @@ elseif (isset($_SESSION['error_msg']) && $_SESSION['error_msg']!= ""){
 				<!--php class Staff if logged in-->
 				<?php }
 				else {?>
+					<li>
+						<p style="color: white">Current User ID: <?php echo $staff->operator; ?></p>
+					</li>
 					<li class="dropdown">
 						<a class="dropdown-toggle" data-toggle="dropdown" href="#">
 							<i class="fas fa-bell fa-2x"></i> <i class="fas fa-caret-down"></i>
 						</a>
 						<ul class="dropdown-menu dropdown-user">
-							<li><a href="/pages/info.php" onclick="loadingModal()"><i class="fas fa-info"></i> Notification</a></li>
+							<li><a href="/pages/waitUserInfo.php" onclick="loadingModal()"><i class="fas fa-info"></i> Wait Info</a></li>
 							<li class="divider"></li>
+							<li><a href="/pages/open_sr.php" onclick="loadingModal()"><i class="fas fa-info"></i> Service Request</a></li>
+							<li class="divider"></li>
+							<li><a href="/pages/pickup.php" onclick="loadingModal()"><i class="fas fa-info"></i> Open Ticket</a></li>
 						</ul>
-						<!-- /.dropdown-user -->
+						<!-- /.dropdown-notification -->
 					</li>
 
 					<li class="dropdown">
