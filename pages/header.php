@@ -195,12 +195,35 @@ elseif (isset($_SESSION['error_msg']) && $_SESSION['error_msg']!= ""){
 						<a class="dropdown-toggle" data-toggle="dropdown" href="#">
 							<i class="fas fa-bell fa-2x"></i> <i class="fas fa-caret-down"></i>
 						</a>
-						<ul class="dropdown-menu dropdown-user">
-							<li><a href="/pages/waitUserInfo.php" onclick="loadingModal()"><i class="fas fa-info"></i> Wait Info</a></li>
+						<ul class="dropdown-menu dropdown-user" style="padding-bottom: 0;">
+							<li>
+								<a href="/pages/waitUserInfo.php" onclick="loadingModal()">
+									<i class="fas fa-list-ol"></i> <b>Queue Info:</b>
+									<p style="margin: 0px; padding-left: 30px">3rd in line: ETA 10 mins</p>
+								</a>
+							</li>
 							<li class="divider"></li>
-							<li><a href="/pages/open_sr.php" onclick="loadingModal()"><i class="fas fa-info"></i> Service Request</a></li>
+							<li>
+								<a href="/pages/pay.php" onclick="loadingModal()">
+									<i class="fas fa-money-check-alt"></i> <b>Balance:</b>
+									<p style="margin: 0px; padding-left: 30px">Ticket 1234: $1.37</p>
+									<p style="margin: 0px; padding-left: 30px">Ticket 5678: $0.75</p>
+								</a>
+							</li>
 							<li class="divider"></li>
-							<li><a href="/pages/pickup.php" onclick="loadingModal()"><i class="fas fa-info"></i> Open Ticket</a></li>
+							<li>
+								<a href="/pages/lookup.php" onclick="loadingModal()">
+									<i class="fas fa-ticket-alt"></i> <b>Ticket Status:</b>
+									<p style="margin: 0px; padding-left: 30px">Ticket 1234: In Storage</p>
+									<p style="margin: 0px; padding-left: 30px">Ticket 5678: Printing...</p>
+								</a>
+							</li>
+							<li class="divider" style="margin-bottom: 0;"></li>
+							<li style="text-align: right;">
+								<a href="/pages/lookup.php" onclick="loadingModal()" style="background-color: lightgrey;">
+									<i class="fas fa-cog"></i> <b>Notification Settings</b>
+								</a>
+							</li>
 						</ul>
 						<!-- /.dropdown-notification -->
 					</li>
