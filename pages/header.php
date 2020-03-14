@@ -192,19 +192,20 @@ elseif (isset($_SESSION['error_msg']) && $_SESSION['error_msg']!= ""){
 						<p style="color: white">Current User ID: <?php echo $staff->operator; ?></p>
 					</li>
 					<li class="dropdown">
+					<?php if ($staff->getRoleID() == 2 || $staff->getRoleID() == 4) { ?> <!-- Dropdown for Learner -->
 						<a class="dropdown-toggle" data-toggle="dropdown" href="#">
 							<i class="fas fa-bell fa-2x"></i> <i class="fas fa-caret-down"></i>
 						</a>
 						<ul class="dropdown-menu dropdown-user" style="padding-bottom: 0;">
 							<li>
-								<a href="/pages/waitUserInfo.php" onclick="loadingModal()">
+								<a href="/pages/info.php" onclick="loadingModal()">
 									<i class="fas fa-list-ol"></i> <b>Queue Info:</b>
 									<p style="margin: 0px; padding-left: 30px">3rd in line: ETA 10 mins</p>
 								</a>
 							</li>
 							<li class="divider"></li>
 							<li>
-								<a href="/pages/pay.php" onclick="loadingModal()">
+								<a href="/pages/info.php" onclick="loadingModal()">
 									<i class="fas fa-money-check-alt"></i> <b>Balance:</b>
 									<p style="margin: 0px; padding-left: 30px">Ticket 1234: $1.37</p>
 									<p style="margin: 0px; padding-left: 30px">Ticket 5678: $0.75</p>
@@ -212,7 +213,7 @@ elseif (isset($_SESSION['error_msg']) && $_SESSION['error_msg']!= ""){
 							</li>
 							<li class="divider"></li>
 							<li>
-								<a href="/pages/lookup.php" onclick="loadingModal()">
+								<a href="/pages/info.php" onclick="loadingModal()">
 									<i class="fas fa-ticket-alt"></i> <b>Ticket Status:</b>
 									<p style="margin: 0px; padding-left: 30px">Ticket 1234: In Storage</p>
 									<p style="margin: 0px; padding-left: 30px">Ticket 5678: Printing...</p>
@@ -224,10 +225,59 @@ elseif (isset($_SESSION['error_msg']) && $_SESSION['error_msg']!= ""){
 									<i class="fas fa-cog"></i> <b>Notification Settings</b>
 								</a>
 							</li>
+						</ul>							
+					<?php }
+					elseif ($staff->getRoleID() == $sv['LvlOfStaff']) { ?> <!-- Dropdown for Staff -->
+						<a class="dropdown-toggle" data-toggle="dropdown" href="#">
+							<i class="fas fa-bell fa-2x"></i> <i class="fas fa-caret-down"></i>
+						</a>
+						<ul class="dropdown-menu dropdown-user" style="padding-bottom: 0;">
+							<li>
+								<a href="/pages/waitUserInfo.php" onclick="loadingModal()">
+									<i class="fas fa-list-ol"></i> <b>Queue Info:</b>
+									<p style="margin: 0px; padding-left: 30px">3rd in line: ETA 10 mins</p>
+								</a>
+							</li>
+							<li class="divider"></li>
+								<li>
+									<a href="/pages/pay.php" onclick="loadingModal()">
+										<i class="fas fa-money-check-alt"></i> <b>Balance:</b>
+										<p style="margin: 0px; padding-left: 30px">Ticket 1234: $1.37</p>
+										<p style="margin: 0px; padding-left: 30px">Ticket 5678: $0.75</p>
+									</a>
+								</li>
+							<li class="divider"></li>
+							<li>
+								<a href="/pages/lookup.php" onclick="loadingModal()">
+									<i class="fas fa-ticket-alt"></i> <b>Ticket Status:</b>
+									<p style="margin: 0px; padding-left: 30px">Ticket 1234: In Storage</p>
+									<p style="margin: 0px; padding-left: 30px">Ticket 5678: Printing...</p>
+								</a>
+							</li>
+						</ul>
+					<?php } 
+					elseif ($staff->getRoleID() == $sv['serviceTechnican']) { ?> <!-- Dropdown for Service member -->
+						<a class="dropdown-toggle" data-toggle="dropdown" href="#">
+							<i class="fas fa-bell fa-2x"></i> <i class="fas fa-caret-down"></i>
+						</a>
+						<ul class="dropdown-menu dropdown-user" style="padding-bottom: 0;">
+							<li>
+								<a href="/pages/lookup.php" onclick="loadingModal()">
+									<i class="fas fa-ticket-alt"></i> <b>Service Ticket:</b>
+									<p style="margin: 0px; padding-left: 30px">Ticket 1234: Maintenance</p>
+									<p style="margin: 0px; padding-left: 30px">Ticket 5678: NonOperating</p>
+								</a>
+							</li>
+							<li class="divider" style="margin-bottom: 0;"></li>
+							<li style="text-align: right;">
+								<a href="/pages/lookup.php" onclick="loadingModal()" style="background-color: lightgrey;">
+									<i class="fas fa-cog"></i> <b>Notification Settings</b>
+								</a>
+							</li>
 						</ul>
 						<!-- /.dropdown-notification -->
+					<?php } ?>
 					</li>
-
 					<li class="dropdown">
 						<a class="dropdown-toggle" data-toggle="dropdown" href="#">
 							<i class="<?php echo $staff->getIcon();?> fa-2x"></i> <i class="fas fa-caret-down"></i>
@@ -240,7 +290,7 @@ elseif (isset($_SESSION['error_msg']) && $_SESSION['error_msg']!= ""){
 						<!-- /.dropdown-user -->
 					</li>
 					<!-- /.dropdown -->
-			<?php }?>	
+				<?php }?>	
 			</ul>
 			<!-- /.navbar-top-links -->
 			<div class="navbar-default sidebar" role="navigation">
