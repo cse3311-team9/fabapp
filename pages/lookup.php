@@ -371,7 +371,7 @@ function exit_with_success($message, $redirect=null) {
 								<tr>
 									<td>Staff</td>
 									<td>
-										<i class='<?php echo $ticket->staff->icon; ?>'></i>";
+										<i class='<?php echo $ticket->staff->icon; ?>'></i>
 									</td>
 								</tr>
 							<?php 
