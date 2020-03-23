@@ -189,94 +189,101 @@ elseif (isset($_SESSION['error_msg']) && $_SESSION['error_msg']!= ""){
 				<?php }
 				else {?>
 					<li>
-						<p style="color: white">Current User ID: <?php echo $staff->operator; ?></p>
+						<p style="color: white">Current User ID: <?php echo $staff->getOperator(); ?></p>
 					</li>
 					<li class="dropdown">
-					<?php if ($staff->getRoleID() == 2 || $staff->getRoleID() == 4) { ?> <!-- Dropdown for Learner -->
 						<a class="dropdown-toggle" data-toggle="dropdown" href="#">
 							<i class="fas fa-bell fa-2x"></i> <i class="fas fa-caret-down"></i>
 						</a>
-						<ul class="dropdown-menu dropdown-user" style="padding-bottom: 0;">
-							<li>
-								<a href="/pages/info.php" onclick="loadingModal()">
-									<i class="fas fa-list-ol"></i> <b>Queue Info:</b>
-									<p style="margin: 0px; padding-left: 30px">3rd in line: ETA 10 mins</p>
-								</a>
-							</li>
-							<li class="divider"></li>
-							<li>
-								<a href="/pages/info.php" onclick="loadingModal()">
-									<i class="fas fa-money-check-alt"></i> <b>Balance:</b>
-									<p style="margin: 0px; padding-left: 30px">Ticket 1234: $1.37</p>
-									<p style="margin: 0px; padding-left: 30px">Ticket 5678: $0.75</p>
-								</a>
-							</li>
-							<li class="divider"></li>
-							<li>
-								<a href="/pages/info.php" onclick="loadingModal()">
-									<i class="fas fa-ticket-alt"></i> <b>Ticket Status:</b>
-									<p style="margin: 0px; padding-left: 30px">Ticket 1234: In Storage</p>
-									<p style="margin: 0px; padding-left: 30px">Ticket 5678: Printing...</p>
-								</a>
-							</li>
-							<li class="divider" style="margin-bottom: 0;"></li>
-							<li style="text-align: right;">
-								<a href="/pages/lookup.php" onclick="loadingModal()" style="background-color: lightgrey;">
-									<i class="fas fa-cog"></i> <b>Notification Settings</b>
-								</a>
-							</li>
-						</ul>							
-					<?php }
-					elseif ($staff->getRoleID() == $sv['LvlOfStaff']) { ?> <!-- Dropdown for Staff -->
-						<a class="dropdown-toggle" data-toggle="dropdown" href="#">
-							<i class="fas fa-bell fa-2x"></i> <i class="fas fa-caret-down"></i>
-						</a>
-						<ul class="dropdown-menu dropdown-user" style="padding-bottom: 0;">
-							<li>
-								<a href="/pages/waitUserInfo.php" onclick="loadingModal()">
-									<i class="fas fa-list-ol"></i> <b>Queue Info:</b>
-									<p style="margin: 0px; padding-left: 30px">3rd in line: ETA 10 mins</p>
-								</a>
-							</li>
-							<li class="divider"></li>
-								<li>
-									<a href="/pages/pay.php" onclick="loadingModal()">
-										<i class="fas fa-money-check-alt"></i> <b>Balance:</b>
-										<p style="margin: 0px; padding-left: 30px">Ticket 1234: $1.37</p>
-										<p style="margin: 0px; padding-left: 30px">Ticket 5678: $0.75</p>
+						<?php if ($staff->getRoleID() == 2 || $staff->getRoleID() == 4) { ?> <!-- Dropdown for Learner -->
+							<ul class="dropdown-menu dropdown-user" style="padding-bottom: 0; width: 240px;">
+								<?php if( !Wait_queue::getWaitPosition($staff->getOperator()) && !$staff->history() ){ ?>
+									<p style="margin: 0px; padding-left: 30px">No recent notifications.</p>
+								<?php }
+								else
+								{
+									if( Wait_queue::getWaitPosition($staff->getOperator()) ){ ?>
+										<li style = "margin:0 18px;">
+											<!--<a href="/pages/info.php" onclick="loadingModal()">-->
+											<i class="fas fa-list-ol"></i> <b>Queue Info:</b><br>
+											<?php foreach (Wait_queue::getWaitPosition($staff->getOperator()) as $device => $position){ ?>
+			                               		<p style="margin: 0px; padding-left: 30px"><a href="index.php" style = "padding-right:0px; padding-left: 0px;"><?php echo "Device ".$device.": " ?></a><?php echo "Position ".$position[0]." in line"; ?></p>	            
+			                    			<?php } ?>
+											<!--</a>-->
+										</li>
+										<li class="divider"></li>
+									<?php }
+									if( $staff->history()){ ?>
+										<li style ="margin:0 18px;">
+											<!--<a href="/pages/info.php" onclick="loadingModal()"> -->
+											<i class="fas fa-money-check-alt"></i> <b>Balance:</b>
+											<?php foreach ($staff->history() as $ticket){ ?>			            
+			                               		<p style="margin: 0px; padding-left: 30px"><a href="/pages/lookup.php?trans_id=<?php echo $ticket[0];?>" style = "padding-right:0px; padding-left: 0px;"><?php echo "Ticket ".$ticket[0];?></a>: <?php echo (!isset($ticket[4]))? "$0.00 Due": $ticket[4]." owed";?></p>
+			                				<?php } ?>
+											<!--</a>-->
+										</li>
+										<li class="divider"></li>
+										<li style = "margin:0 18px;">
+											<!-- <a href="/pages/info.php" onclick="loadingModal()"> -->
+											<i class="fas fa-ticket-alt"></i> <b>Ticket Status:</b>
+											<?php foreach ($staff->history() as $ticket){ ?>			            
+				                            	<p style="margin: 0px; padding-left: 30px"><a href="/pages/lookup.php?trans_id=<?php echo $ticket[0];?>" style = "padding-right:0px; padding-left: 0px;"><?php echo "Ticket ".$ticket[0];?></a>: <?php echo $ticket[3];?></p>
+			                    			<?php } ?>
+			                    			<!-- </a> -->			       
+										</li>
+									<?php } ?>
+								<?php } ?>
+								<li style="text-align: right;">
+									<a href="/pages/lookup.php" onclick="loadingModal()" style="background-color: lightgrey;">
+										<i class="fas fa-cog"></i> <b>Notification Settings</b>
 									</a>
 								</li>
-							<li class="divider"></li>
-							<li>
-								<a href="/pages/lookup.php" onclick="loadingModal()">
-									<i class="fas fa-ticket-alt"></i> <b>Ticket Status:</b>
-									<p style="margin: 0px; padding-left: 30px">Ticket 1234: In Storage</p>
-									<p style="margin: 0px; padding-left: 30px">Ticket 5678: Printing...</p>
-								</a>
-							</li>
-						</ul>
-					<?php } 
-					elseif ($staff->getRoleID() == $sv['serviceTechnican']) { ?> <!-- Dropdown for Service member -->
-						<a class="dropdown-toggle" data-toggle="dropdown" href="#">
-							<i class="fas fa-bell fa-2x"></i> <i class="fas fa-caret-down"></i>
-						</a>
-						<ul class="dropdown-menu dropdown-user" style="padding-bottom: 0;">
-							<li>
-								<a href="/pages/lookup.php" onclick="loadingModal()">
-									<i class="fas fa-ticket-alt"></i> <b>Service Ticket:</b>
-									<p style="margin: 0px; padding-left: 30px">Ticket 1234: Maintenance</p>
-									<p style="margin: 0px; padding-left: 30px">Ticket 5678: NonOperating</p>
-								</a>
-							</li>
-							<li class="divider" style="margin-bottom: 0;"></li>
-							<li style="text-align: right;">
-								<a href="/pages/lookup.php" onclick="loadingModal()" style="background-color: lightgrey;">
-									<i class="fas fa-cog"></i> <b>Notification Settings</b>
-								</a>
-							</li>
-						</ul>
-						<!-- /.dropdown-notification -->
-					<?php } ?>
+							</ul>							
+						<?php }
+						elseif ($staff->getRoleID() == $sv['LvlOfStaff']) { ?> <!-- Dropdown for Staff -->
+							<ul class="dropdown-menu dropdown-user" style="padding-bottom: 0; width: 230px;"">
+								<li>
+									<a href="/pages/waitUserInfo.php" onclick="loadingModal()">
+										<i class="fas fa-list-ol"></i> <b>Queue Info:</b>
+										<p style="margin: 0px; padding-left: 30px">3rd in line: ETA 10 mins</p>
+									</a>
+								</li>
+								<li class="divider"></li>
+									<li>
+										<a href="/pages/pay.php" onclick="loadingModal()">
+											<i class="fas fa-money-check-alt"></i> <b>Balance:</b>
+											<p style="margin: 0px; padding-left: 30px">Ticket 1234: $1.37</p>
+											<p style="margin: 0px; padding-left: 30px">Ticket 5678: $0.75</p>
+										</a>
+									</li>
+								<li class="divider"></li>
+								<li>
+									<a href="/pages/lookup.php" onclick="loadingModal()">
+										<i class="fas fa-ticket-alt"></i> <b>Ticket Status:</b>
+										<p style="margin: 0px; padding-left: 30px">Ticket 1234: In Storage</p>
+										<p style="margin: 0px; padding-left: 30px">Ticket 5678: Printing...</p>
+									</a>
+								</li>
+							</ul>
+						<?php } 
+						elseif ($staff->getRoleID() == $sv['serviceTechnican']) { ?> <!-- Dropdown for Service member -->s
+							<ul class="dropdown-menu dropdown-user" style="padding-bottom: 0; width: 250px;"">
+								<li>
+									<a href="/pages/lookup.php" onclick="loadingModal()">
+										<i class="fas fa-ticket-alt"></i> <b>Service Ticket:</b>
+										<p style="margin: 0px; padding-left: 30px">Ticket 1234: Maintenance</p>
+										<p style="margin: 0px; padding-left: 30px">Ticket 5678: NonOperating</p>
+									</a>
+								</li>
+								<li class="divider" style="margin-bottom: 0;"></li>
+								<li style="text-align: right;">
+									<a href="/pages/lookup.php" onclick="loadingModal()" style="background-color: lightgrey;">
+										<i class="fas fa-cog"></i> <b>Notification Settings</b>
+									</a>
+								</li>
+							</ul>
+							<!-- /.dropdown-notification -->
+						<?php } ?>
 					</li>
 					<li class="dropdown">
 						<a class="dropdown-toggle" data-toggle="dropdown" href="#">

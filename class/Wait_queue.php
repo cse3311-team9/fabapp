@@ -523,6 +523,48 @@ class Wait_queue {
                                 FROM `wait_queue` 
                                 WHERE `Operator`=$operator AND `devgr_id`=$dg_id AND `valid` = 'Y'"))>0;
     }
+
+    public static function getWaitPosition($operator){
+        global $mysqli;
+        $wait_position = array();
+        $position = 0;
+        if(!$result = $mysqli->query("
+                        SELECT devgr_id
+                        FROM `wait_queue`
+                        WHERE `Operator` = $operator AND `valid` = 'Y' "))
+        {
+            return $wait_position;
+        }
+        else{ 
+            while($row = $result->fetch_assoc())
+            {
+                $wait_position[$row["devgr_id"]] = array(0,0);
+            }
+        };
+
+        $devicegr_id  = implode(", ",array_keys($wait_position));
+
+        if($result1 = $mysqli->query("
+                        SELECT Operator, devgr_id
+                        FROM `wait_queue`
+                        WHERE `devgr_id` IN ($devicegr_id)  AND `valid` = 'Y' 
+                        ORDER BY `Start_date` ASC"))
+        {
+         while($row = $result1->fetch_assoc()){
+            if(strcmp($row["Operator"],$operator) != 0 && $wait_position[$row["devgr_id"]][1] == 0)
+            {
+                $wait_position[$row["devgr_id"]][0]++; 
+            }
+            else
+            {
+                $wait_position[$row["devgr_id"]][0]++;
+                $wait_position[$row["devgr_id"]][1] = 1;
+            }
+        }
+
+        }
+        return $wait_position;
+    }
     
     public static function getTabResult(){
         global $mysqli;
