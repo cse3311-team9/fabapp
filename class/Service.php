@@ -26,7 +26,8 @@ class Service_call {
 			 WHERE `sc_id` = '$sc_id';
 		")){
 			$row = $result->fetch_assoc();
-			$this->setDevice($row['device_id']);
+			//$this->setDevice($row['device_id']);
+			$this->setDevice($row['d_id']);
 			$this->setSc_id($sc_id);
 			$this->setSc_notes($row['sc_notes']);
 			$this->setSc_time($row['sc_time']);

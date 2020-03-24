@@ -198,7 +198,7 @@ elseif (isset($_SESSION['error_msg']) && $_SESSION['error_msg']!= ""){
 						<?php if ($staff->getRoleID() == 2 || $staff->getRoleID() == 4) { ?> <!-- Dropdown for Learner -->
 							<ul class="dropdown-menu dropdown-user" style="padding-bottom: 0; width: 240px;">
 								<?php if( !Wait_queue::getWaitPosition($staff->getOperator()) && !$staff->history() ){ ?>
-									<p style="margin: 0px; padding-left: 30px">No recent notifications.</p>
+									<p style="margin: 5px 0; padding-left: 30px">No recent notifications</p>
 								<?php }
 								else
 								{
@@ -207,8 +207,8 @@ elseif (isset($_SESSION['error_msg']) && $_SESSION['error_msg']!= ""){
 											<!--<a href="/pages/info.php" onclick="loadingModal()">-->
 											<i class="fas fa-list-ol"></i> <b>Queue Info:</b><br>
 											<?php foreach (Wait_queue::getWaitPosition($staff->getOperator()) as $device => $position){ ?>
-			                               		<p style="margin: 0px; padding-left: 30px"><a href="index.php" style = "padding-right:0px; padding-left: 0px;"><?php echo "Device ".$device.": " ?></a><?php echo "Position ".$position[0]." in line"; ?></p>	            
-			                    			<?php } ?>
+			                               		<p style="margin: 0px; padding-left: 30px"><a href="../index.php" style = "padding-right:0px; padding-left: 0px;"><?php echo "Device ".$device.": " ?></a><?php echo "Position ".$position[0]." in line"; ?></p>	            
+			                    			<?php } //Clear everything when loading device info while in other pages?>
 											<!--</a>-->
 										</li>
 										<li class="divider"></li>
@@ -231,6 +231,7 @@ elseif (isset($_SESSION['error_msg']) && $_SESSION['error_msg']!= ""){
 			                    			<?php } ?>
 			                    			<!-- </a> -->			       
 										</li>
+										<br>
 									<?php } ?>
 								<?php } ?>
 								<li style="text-align: right;">
@@ -241,7 +242,7 @@ elseif (isset($_SESSION['error_msg']) && $_SESSION['error_msg']!= ""){
 							</ul>							
 						<?php }
 						elseif ($staff->getRoleID() == $sv['LvlOfStaff']) { ?> <!-- Dropdown for Staff -->
-							<ul class="dropdown-menu dropdown-user" style="padding-bottom: 0; width: 230px;"">
+							<ul class="dropdown-menu dropdown-user" style="padding-bottom: 0; width: 230px;">
 								<li>
 									<a href="/pages/waitUserInfo.php" onclick="loadingModal()">
 										<i class="fas fa-list-ol"></i> <b>Queue Info:</b>
@@ -266,14 +267,23 @@ elseif (isset($_SESSION['error_msg']) && $_SESSION['error_msg']!= ""){
 								</li>
 							</ul>
 						<?php } 
-						elseif ($staff->getRoleID() == $sv['serviceTechnican']) { ?> <!-- Dropdown for Service member -->s
-							<ul class="dropdown-menu dropdown-user" style="padding-bottom: 0; width: 250px;"">
-								<li>
-									<a href="/pages/lookup.php" onclick="loadingModal()">
-										<i class="fas fa-ticket-alt"></i> <b>Service Ticket:</b>
-										<p style="margin: 0px; padding-left: 30px">Ticket 1234: Maintenance</p>
-										<p style="margin: 0px; padding-left: 30px">Ticket 5678: NonOperating</p>
-									</a>
+						elseif ($staff->getRoleID() == $sv['serviceTechnican']) { ?> <!-- Dropdown for Service member -->
+							<ul class="dropdown-menu dropdown-user" style="padding-bottom: 0; width: 250px;">
+								<li style ="margin:0 18px;">
+									<i class="fas fa-ticket-alt"></i> <b>Service Ticket:</b>
+								    <?php 
+								    $count = 0;
+								    $result = Service_call::openSC();
+	                    			while($row = $result->fetch_assoc()){ $count++; ?>
+											<p style="margin: 0px; padding-left: 30px">
+												<a href="/pages/sr_log.php?sc_id=<?php echo $row["sc_id"];?>" onclick="loadingModal()" style = "padding-left: 0; padding-right:0"><?php echo "Service Ticket ".$row["sc_id"];?></a>
+													:
+												<?php echo Service_lvl::sltoMsg($row["sl_id"]); ?>
+											</p>
+									<?php } 
+									if($count == 0){ ?>
+										<p> No recent tickets </p>
+									<?php } ?>
 								</li>
 								<li class="divider" style="margin-bottom: 0;"></li>
 								<li style="text-align: right;">
@@ -297,7 +307,7 @@ elseif (isset($_SESSION['error_msg']) && $_SESSION['error_msg']!= ""){
 						<!-- /.dropdown-user -->
 					</li>
 					<!-- /.dropdown -->
-				<?php }?>	
+				<?php } ?>	
 			</ul>
 			<!-- /.navbar-top-links -->
 			<div class="navbar-default sidebar" role="navigation">
