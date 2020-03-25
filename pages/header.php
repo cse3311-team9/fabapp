@@ -33,7 +33,7 @@ session_start();
 include_once ($_SERVER['DOCUMENT_ROOT'].'/connections/db_connect8.php');
 include_once ($_SERVER['DOCUMENT_ROOT'].'/connections/ldap.php');
 include_once ($_SERVER['DOCUMENT_ROOT'].'/class/all_classes.php');
-include_once ($_SERVER['DOCUMENT_ROOT'].'/pages/sub/notificationSettings_Modal.php');
+
 date_default_timezone_set($sv['timezone']);
 if(!$mysqli->query("SET NAMES 'utf8';")) throw new Exception("Could not set MySqli encoding to UTF-8");
 
@@ -136,6 +136,8 @@ elseif (isset($_SESSION['error_msg']) && $_SESSION['error_msg']!= ""){
 	echo "<script>window.onload = function(){goModal('Error',\"$_SESSION[error_msg]\", false)}</script>";
 	unset($_SESSION['error_msg']);
 }
+
+include_once ($_SERVER['DOCUMENT_ROOT'].'/pages/sub/notificationSettings_Modal.php');
 ?>
 </head>
 <body>

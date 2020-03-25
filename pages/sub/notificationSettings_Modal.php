@@ -7,12 +7,6 @@
 *	 settings for the currently logged in user.
 *
 **************************************************/
-
-include_once ($_SERVER['DOCUMENT_ROOT'].'/connections/db_connect8.php');
-include_once ($_SERVER['DOCUMENT_ROOT'].'/connections/ldap.php');
-include_once ($_SERVER['DOCUMENT_ROOT'].'/class/all_classes.php');
-
-$staff = unserialize($_SESSION['staff']);
 ?>
 
 <div id="settingsModal" class="modal fade" role="dialog">
@@ -23,29 +17,63 @@ $staff = unserialize($_SESSION['staff']);
                 <h4 class="modal-title">Notification Settings</h4>
             </div>
             <form name="form" action="" method="post">
+                <?php
+                    if($result = $mysqli->query("
+                        SELECT *
+                        FROM contact_info
+                        WHERE userId = $staff->operator
+                    "))
+                    {
+                        $row = $result->fetch_assoc();
+                        $email = $row['email'];
+                        $phone = $row['phone'];
+                    }
+                    else
+                    {
+                        $email = "";
+                        $phone = "";
+                    }
+                ?>
                 <div id="settingsBody" class="modal-body">
                     <div>
                         <label>Email: </label>
-                        <input type="text" name="email" id="email" class="form-control">
+                        <input type="text" name="email" id="email" class="form-control" value="<?php echo $email ?>">
                     </div>
                     <div>
                         <label>Phone: </label>
-                        <input type="text" name="phone" id="phone" class="form-control">
+                        <input type="text" name="phone" id="phone" class="form-control" value="<?php echo $phone ?>">
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal" style="float: right;">Cancel</button>
                     <?php
                         if(array_key_exists('btnSave', $_POST)) { 
-                            $query = 'UPDATE contact_info
-                                      SET email = ' . $_POST['email'] . ', phone = ' . $_POST['phone'] .
-                                     'WHERE userId = ' . $staff->operator;
+                            $email = $_POST['email'];
+                            $phone = $_POST['phone'];
 
-                            $mysqli->query($query);
+                            if ($mysqli->query("
+                                    UPDATE contact_info
+                                    SET email = '$email', phone = '$phone'
+                                    WHERE userId = $staff->operator
+                                ") === TRUE)
+                            {
+                                echo '<script>console.log("Inserting!");</script>';
+                                $mysqli->query("
+                                    INSERT INTO contact_info (userId, email, phone, collectedOn)
+                                    VALUES ('$staff->operator', '$email', '$phone', CURRENT_DATE())
+                                ");
+                            }
+
+                            header("Refresh:0");
                         }
 
                         if(array_key_exists('btnDrop', $_POST)) { 
-                            echo "Drop Clicked!!";
+                            $mysqli->query("
+                                DELETE FROM contact_info
+                                WHERE userId = $staff->operator
+                            ");
+
+                            header("Refresh:0");
                         }
                     ?>
                     <button type="submit" name="btnSave" class="btn btn-default" style="float: right; margin-right: 10px;">Save</button>
