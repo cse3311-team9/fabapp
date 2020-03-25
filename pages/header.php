@@ -33,6 +33,7 @@ session_start();
 include_once ($_SERVER['DOCUMENT_ROOT'].'/connections/db_connect8.php');
 include_once ($_SERVER['DOCUMENT_ROOT'].'/connections/ldap.php');
 include_once ($_SERVER['DOCUMENT_ROOT'].'/class/all_classes.php');
+
 date_default_timezone_set($sv['timezone']);
 if(!$mysqli->query("SET NAMES 'utf8';")) throw new Exception("Could not set MySqli encoding to UTF-8");
 
@@ -135,6 +136,8 @@ elseif (isset($_SESSION['error_msg']) && $_SESSION['error_msg']!= ""){
 	echo "<script>window.onload = function(){goModal('Error',\"$_SESSION[error_msg]\", false)}</script>";
 	unset($_SESSION['error_msg']);
 }
+
+include_once ($_SERVER['DOCUMENT_ROOT'].'/pages/sub/notificationSettings_Modal.php');
 ?>
 </head>
 <body>
@@ -234,10 +237,12 @@ elseif (isset($_SESSION['error_msg']) && $_SESSION['error_msg']!= ""){
 										<br>
 									<?php } ?>
 								<?php } ?>
-								<li style="text-align: right;">
-									<a href="/pages/lookup.php" onclick="loadingModal()" style="background-color: lightgrey;">
-										<i class="fas fa-cog"></i> <b>Notification Settings</b>
-									</a>
+								<li class="divider" style="margin-bottom: 0;"></li>
+								<li>
+									<button type="button" class="btn btn-info btn-block" data-toggle="modal" data-target="#settingsModal" 
+									style="background-color: lightgrey; color: black; border-color: black;">
+										<i class="fas fa-cog"></i>  Notification Settings
+									</button>
 								</li>
 							</ul>							
 						<?php }
@@ -265,6 +270,13 @@ elseif (isset($_SESSION['error_msg']) && $_SESSION['error_msg']!= ""){
 										<p style="margin: 0px; padding-left: 30px">Ticket 5678: Printing...</p>
 									</a>
 								</li>
+								<li class="divider" style="margin-bottom: 0;"></li>
+								<li>
+									<button type="button" class="btn btn-info btn-block" data-toggle="modal" data-target="#settingsModal" 
+									style="background-color: lightgrey; color: black; border-color: black;">
+										<i class="fas fa-cog"></i>  Notification Settings
+									</button>
+								</li>
 							</ul>
 						<?php } 
 						elseif ($staff->getRoleID() == $sv['serviceTechnican']) { ?> <!-- Dropdown for Service member -->
@@ -286,10 +298,11 @@ elseif (isset($_SESSION['error_msg']) && $_SESSION['error_msg']!= ""){
 									<?php } ?>
 								</li>
 								<li class="divider" style="margin-bottom: 0;"></li>
-								<li style="text-align: right;">
-									<a href="/pages/lookup.php" onclick="loadingModal()" style="background-color: lightgrey;">
-										<i class="fas fa-cog"></i> <b>Notification Settings</b>
-									</a>
+								<li>
+									<button type="button" class="btn btn-info btn-block" data-toggle="modal" data-target="#settingsModal" 
+									style="background-color: lightgrey; color: black; border-color: black;">
+										<i class="fas fa-cog"></i>  Notification Settings
+									</button>
 								</li>
 							</ul>
 							<!-- /.dropdown-notification -->
