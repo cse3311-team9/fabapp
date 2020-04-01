@@ -19,14 +19,15 @@
             <form name="form" action="" method="post">
                 <?php
                     if($result = $mysqli->query("
-                        SELECT *
-                        FROM contact_info
-                        WHERE userId = $staff->operator
+                        SELECT Op_email, Op_phone, carrier
+                        FROM wait_queue
+                        WHERE Operator = $staff->operator
                     "))
                     {
                         $row = $result->fetch_assoc();
-                        $email = $row['email'];
-                        $phone = $row['phone'];
+                        $email = $row['Op_email'];
+                        $phone = $row['Op_phone'];
+                        $carrier = $row['carrier'];
                     }
                     else
                     {
@@ -36,12 +37,32 @@
                 ?>
                 <div id="settingsBody" class="modal-body">
                     <div>
-                        <label>Email: </label>
+                        <label>Email:</label>
                         <input type="text" name="email" id="email" class="form-control" value="<?php echo $email ?>">
                     </div>
                     <div>
-                        <label>Phone: </label>
+                        <p></p>
+                        <label>Phone:</label>
                         <input type="text" name="phone" id="phone" class="form-control" value="<?php echo $phone ?>">
+                    </div>
+                    <div>
+                        <p></p>
+                        <label>Carrier:</label>
+                        <select type="text" name="carrier" id="carrier" class="form-control" value="<?php echo $carrier ?>">
+                            <option value="">--- Select Cell Carrier ---</option>
+                            <option value="AT&T">AT&T</option>
+                            <option value="Verizon">Verizon</option>
+                            <option value="T-Mobile">T-Mobile</option>
+                            <option value="Sprint">Sprint</option>
+                            <option value="Virgin Mobile">Virgin Mobile</option>
+                            <option value="Project Fi">Project Fi</option>
+                        </select>
+                    </div>
+                    <div class="checkbox" align="right">
+                        <p></p>
+                        <label class="checkbox-inline">
+                            <input type="checkbox" data-toggle="toggle">Mute Notifications 
+                        </label>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -50,18 +71,19 @@
                         if(array_key_exists('btnSave', $_POST)) { 
                             $email = $_POST['email'];
                             $phone = $_POST['phone'];
+                            $carrier = $_POST['carrier'];
 
                             if ($mysqli->query("
-                                    UPDATE contact_info
-                                    SET email = '$email', phone = '$phone'
-                                    WHERE userId = $staff->operator
-                                ") === TRUE)
+                                    UPDATE wait_queue
+                                    SET Op_email = '$email', Op_phone = '$phone', carrier = '$carrier'
+                                    WHERE Operator = $staff->operator
+                                "))
                             {
-                                echo '<script>console.log("Inserting!");</script>';
-                                $mysqli->query("
-                                    INSERT INTO contact_info (userId, email, phone, collectedOn)
-                                    VALUES ('$staff->operator', '$email', '$phone', CURRENT_DATE())
-                                ");
+                                echo '<script>alert("Update Succesful")</script>';
+                            }
+                            else
+                            {
+                                echo '<script>alert("Update failed")</script>';
                             }
 
                             header("Refresh:0");
