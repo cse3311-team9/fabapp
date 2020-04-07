@@ -32,8 +32,10 @@
                     }
                     else
                     {
+                        echo '<script>alert("Failed to pull contact info from user ' + $staff->operator + '");</script>';
                         $email = "";
                         $phone = "";
+                        $carrier = "";
                     }
                 ?>
                 <div id="settingsBody" class="modal-body">
@@ -51,12 +53,12 @@
                         <label>Carrier:</label>
                         <select type="text" name="carrier" id="carrier" class="form-control" value="<?php echo $carrier ?>">
                             <option value="">--- Select Cell Carrier ---</option>
-                            <option value="AT&T">AT&T</option>
-                            <option value="Verizon">Verizon</option>
-                            <option value="T-Mobile">T-Mobile</option>
-                            <option value="Sprint">Sprint</option>
-                            <option value="Virgin Mobile">Virgin Mobile</option>
-                            <option value="Project Fi">Project Fi</option>
+                            <option value="AT&T" <?php if ($carrier == "AT&T" ) echo 'selected' ; ?>>AT&T</option>
+                            <option value="Verizon" <?php if ($carrier == "Verizon" ) echo 'selected' ; ?>>Verizon</option>
+                            <option value="T-Mobile" <?php if ($carrier == "T-Mobile" ) echo 'selected' ; ?>>T-Mobile</option>
+                            <option value="Sprint" <?php if ($carrier == "Sprint" ) echo 'selected' ; ?>>Sprint</option>
+                            <option value="Virgin Mobile" <?php if ($carrier == "Virgin Mobile" ) echo 'selected' ; ?>>Virgin Mobile</option>
+                            <option value="Project Fi" <?php if ($carrier == "Project Fi" ) echo 'selected' ; ?>>Project Fi</option>
                         </select>
                     </div>
                     <div align="right">
@@ -82,11 +84,11 @@
                                     WHERE Operator = $staff->operator
                                 "))
                             {
-                                echo '<script>alert("Update Succesful")</script>';
+                                echo '<script>alert("Update Succesful");</script>';
                             }
                             else
                             {
-                                echo '<script>alert("Update failed")</script>';
+                                echo '<script>alert("Update failed");</script>';
                             }
 
                             header("Refresh:0");
@@ -94,8 +96,9 @@
 
                         if(array_key_exists('btnDrop', $_POST)) { 
                             $mysqli->query("
-                                DELETE FROM contact_info
-                                WHERE userId = $staff->operator
+                                UPDATE wait_queue
+                                SET Op_email = '', Op_phone = '', carrier = ''
+                                WHERE Operator = $staff->operator
                             ");
 
                             header("Refresh:0");
