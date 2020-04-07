@@ -8,6 +8,7 @@
 *
 **************************************************/
 ?>
+<link href="/vendor/w3/toggle.css" rel="stylesheet" type="text/css">
 
 <div id="settingsModal" class="modal fade" role="dialog">
     <div class="modal-dialog">
@@ -58,11 +59,13 @@
                             <option value="Project Fi">Project Fi</option>
                         </select>
                     </div>
-                    <div class="checkbox" align="right">
-                        <p></p>
-                        <label class="checkbox-inline">
-                            <input type="checkbox" data-toggle="toggle">Mute Notifications 
+                    <div align="right">
+                        <p style="height: 10px;"></p>
+                        <label id="muteNotifications" class="switch">
+                            <input type="checkbox">
+                            <span class="slider round"></span>
                         </label>
+                        <label class="custom-control-label" for="muteNotifications">Mute Notifications</label>
                     </div>
                 </div>
                 <div class="modal-footer">
