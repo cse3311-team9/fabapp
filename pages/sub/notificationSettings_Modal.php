@@ -63,7 +63,7 @@
                     </div>
                     <div align="right">
                         <p style="height: 10px;"></p>
-                        <label id="muteNotifications" class="switch">
+                        <label id="muteNotifications" title="Turn on/off email and/or text nofifications and just receive notifications through FabApp" class="switch">
                             <input type="checkbox">
                             <span class="slider round"></span>
                         </label>
@@ -104,8 +104,8 @@
                             header("Refresh:0");
                         }
                     ?>
-                    <button type="submit" name="btnSave" class="btn btn-default" style="float: right; margin-right: 10px;">Save</button>
-                    <button type="submit" name="btnDrop" class="btn btn-default" style="float: left; background-color: red;" title="Erase contact information from system">Drop</button>
+                    <button type="submit" name="btnSave" class="btn btn-default" style="float: right; margin-right: 10px; background-color: #337ab7; color: white;">Save</button>
+                    <button type="submit" name="btnDrop" class="btn btn-default" style="float: left; background-color: red;" title="Erase contact information from database">Drop</button>
                 </div>
             </form>
         </div>
