@@ -170,8 +170,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['removeBtn']) && $staff
                 </div>
                 <!-- /.panel-body -->
                 <div class="panel-footer clearfix">
-                    <!--<div class="pull-right"><input class="btn" type="submit" name="submitBtn" id="submitBtn" value="Submit" disabled></div>-->
-                    <div class="pull-right"><input class="btn" type="submit" name="submitBtn" id="submitBtn" value="Submit"></div>
+                    <div class="pull-right"><input class="btn" type="submit" name="submitBtn" id="submitBtn" value="Submit" disabled></div>
                 </div>
                 </form>
             </div>
@@ -546,7 +545,7 @@ include_once ($_SERVER['DOCUMENT_ROOT'].'/pages/footer.php');
                         trV.hidden  = true;
                     } else {
                         console.log("Invalid Search Criteria");
-                        //sBtn.disabled = true;
+                        sBtn.disabled = true;
                         sBtn.classList.remove("btn-primary");
                     }
                 }
@@ -564,7 +563,7 @@ include_once ($_SERVER['DOCUMENT_ROOT'].'/pages/footer.php');
             sBtn.disabled = false;
             sBtn.classList.add("btn-primary");
         } else {
-            ssBtn.disabled = true;
+            sBtn.disabled = true;
             sBtn.classList.remove("btn-primary");
         }
     }
