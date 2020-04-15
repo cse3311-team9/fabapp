@@ -33,7 +33,6 @@ session_start();
 include_once ($_SERVER['DOCUMENT_ROOT'].'/connections/db_connect8.php');
 include_once ($_SERVER['DOCUMENT_ROOT'].'/connections/ldap.php');
 include_once ($_SERVER['DOCUMENT_ROOT'].'/class/all_classes.php');
-
 date_default_timezone_set($sv['timezone']);
 if(!$mysqli->query("SET NAMES 'utf8';")) throw new Exception("Could not set MySqli encoding to UTF-8");
 
@@ -136,8 +135,6 @@ elseif (isset($_SESSION['error_msg']) && $_SESSION['error_msg']!= ""){
 	echo "<script>window.onload = function(){goModal('Error',\"$_SESSION[error_msg]\", false)}</script>";
 	unset($_SESSION['error_msg']);
 }
-
-include_once ($_SERVER['DOCUMENT_ROOT'].'/pages/sub/notificationSettings_Modal.php');
 ?>
 </head>
 <body>
@@ -191,47 +188,6 @@ include_once ($_SERVER['DOCUMENT_ROOT'].'/pages/sub/notificationSettings_Modal.p
 				<!--php class Staff if logged in-->
 				<?php }
 				else {?>
-					<li>
-						<p style="color: white">Current User ID: <?php echo $staff->operator; ?></p>
-					</li>
-					<li class="dropdown">
-						<a class="dropdown-toggle" data-toggle="dropdown" href="#">
-							<i class="fas fa-bell fa-2x"></i> <i class="fas fa-caret-down"></i>
-						</a>
-						<ul class="dropdown-menu dropdown-user" style="padding-bottom: 0;">
-							<li>
-								<a href="/pages/waitUserInfo.php" onclick="loadingModal()">
-									<i class="fas fa-list-ol"></i> <b>Queue Info:</b>
-									<p style="margin: 0px; padding-left: 30px">3rd in line: ETA 10 mins</p>
-								</a>
-							</li>
-							<li class="divider"></li>
-							<li>
-								<a href="/pages/pay.php" onclick="loadingModal()">
-									<i class="fas fa-money-check-alt"></i> <b>Balance:</b>
-									<p style="margin: 0px; padding-left: 30px">Ticket 1234: $1.37</p>
-									<p style="margin: 0px; padding-left: 30px">Ticket 5678: $0.75</p>
-								</a>
-							</li>
-							<li class="divider"></li>
-							<li>
-								<a href="/pages/lookup.php" onclick="loadingModal()">
-									<i class="fas fa-ticket-alt"></i> <b>Ticket Status:</b>
-									<p style="margin: 0px; padding-left: 30px">Ticket 1234: In Storage</p>
-									<p style="margin: 0px; padding-left: 30px">Ticket 5678: Printing...</p>
-								</a>
-							</li>
-							<li class="divider" style="margin-bottom: 0;"></li>
-							<li>
-								<button type="button" class="btn btn-info btn-block" data-toggle="modal" data-target="#settingsModal" 
-								style="background-color: lightgrey; color: black; border-color: black;">
-									<i class="fas fa-cog"></i>  Notification Settings
-								</button>
-							</li>
-						</ul>
-						<!-- /.dropdown-notification -->
-					</li>
-
 					<li class="dropdown">
 						<a class="dropdown-toggle" data-toggle="dropdown" href="#">
 							<i class="<?php echo $staff->getIcon();?> fa-2x"></i> <i class="fas fa-caret-down"></i>
