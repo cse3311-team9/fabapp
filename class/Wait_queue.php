@@ -21,13 +21,13 @@ class Wait_queue {
     private $phone_num;
     private $email;
     private $last_contacted;
-    
+
     public function __construct($q_id){
         global $mysqli;
 
         if ($result = $mysqli->query("
             SELECT `Q_id`, `Operator`, `Dev_id`, `Devgr_id`, `Start_date`, `End_date`, `last_contact`, `valid`, `estTime`, `Op_email` AS `email`, `Op_phone` AS `phone`
-            FROM wait_queue 
+            FROM wait_queue
             WHERE `Q_id` = $q_id
             LIMIT 1;
         ")){
@@ -42,72 +42,72 @@ class Wait_queue {
             $this->setStartTime($row['Start_date']);
             $this->setEndTime($row['End_date']);
             $this->setValid($row['valid']);
-            
-            if (isset($row['phone'])) 
-                $this->setPhone($row['phone']); 
+
+            if (isset($row['phone']))
+                $this->setPhone($row['phone']);
             else $this->setPhone(NULL);
 
-            if (isset($row['email'])) 
+            if (isset($row['email']))
                 $this->setEmail($row['email']);
             else $this->setEmail(NULL);
-            
-            if (isset($row['last_contact'])) 
+
+            if (isset($row['last_contact']))
                 $this->setLastContact($row['last_contact']);
             else $this->setLastContact(NULL);
         }
-        
+
     }
-    
+
 
     public static function insertWaitQueue($operator, $d_id, $dg_id, $phone, $carrier_name, $email) {
         global $mysqli;
-        
+
         /**
          * TODO: variable validation
          * d_id, dg_id
          */
-        
+
         //return ("<div class='alert alert-danger'>Bad Phone Number - $carrier_name</div>");
         //Validate input variables
         if (!self::regexPhone($phone) && !empty($phone)) {
             return ("<div class='alert alert-danger'>Bad Phone Number - $phone</div>");
         }
-        
+
         if (!self::regexOperator($operator)) {
             return ("<div class='alert alert-danger'>Bad Operator Number - $operator</div>");
         }
-        
+
         if(!filter_var($email, FILTER_VALIDATE_EMAIL) && !empty($email)) {
             return ("<div class='alert alert-danger'>Bad Email - $email</div>");
         }
-        
-        
+
+
         if(isset($d_id) && $dg_id!=2) {
 
             if ($mysqli->query("
-                INSERT INTO `wait_queue` 
-                  (`operator`,`dev_id`,`Devgr_id`,`start_date`, `Op_email`, `Op_phone`, `carrier`) 
+                INSERT INTO `wait_queue`
+                  (`operator`,`dev_id`,`Devgr_id`,`start_date`, `Op_email`, `Op_phone`, `carrier`)
                 VALUES
                     ('$operator','$d_id','$dg_id',CURRENT_TIMESTAMP, '$email', '$phone', '$carrier_name');
 
-            ")){        
+            ")){
                 Notifications::sendNotification($mysqli->insert_id, "FabApp Notification", "You have signed up for FabApp notifications. Your Wait Ticket number is: ".$mysqli->insert_id."", 'From: FabApp Notifications' . "\r\n" .'', 0);
                 Wait_queue::calculateDeviceWaitTimes();
                 //Commented out for Dev purposes
                 Wait_queue::printTicket($operator, $dg_id);
                 return $mysqli->insert_id;
-                
+
             } else {
                 return ("<div class='alert alert-danger'>".$mysqli->error."</div>");
             }
 
         } else {
             if ($mysqli->query("
-                INSERT INTO wait_queue 
-                  (`operator`, `Devgr_id`,`start_date`, `Op_email`, `Op_phone`, `carrier`) 
+                INSERT INTO wait_queue
+                  (`operator`, `Devgr_id`,`start_date`, `Op_email`, `Op_phone`, `carrier`)
                 VALUES
                     ('$operator','$dg_id',CURRENT_TIMESTAMP, '$email', '$phone', '$carrier_name');
-            ")){        
+            ")){
                 Notifications::sendNotification($mysqli->insert_id, "FabApp Notification", "You have signed up for FabApp notifications. Your Wait Ticket number is: ".$mysqli->insert_id."", 'From: FabApp Notifications' . "\r\n" .'', 0);
                 Wait_queue::calculateWaitTimes();
                 //Commented out for Dev purposes
@@ -118,7 +118,7 @@ class Wait_queue {
             }
         }
     }
-    
+
 
     public static function isOperatorWaiting($operator) {
         global $mysqli;
@@ -130,7 +130,7 @@ class Wait_queue {
         {
             // If the count is greater than zero, then return true
             $row = $result->fetch_assoc();
-            
+
             if ($row['Total'] > 0)
             {
                 echo ("This operator is waiting on another ticket, so it's info won't be deleted");
@@ -149,8 +149,8 @@ class Wait_queue {
 
 
             // Send a notification that they have canceled their wait queue ticket
-            Notifications::sendNotification($queueItem->q_id, "FabApp Notification", "Your Wait Ticket has been cancelled", 'From: FabApp Notifications' . "\r\n" .'', 0);             
-        
+            Notifications::sendNotification($queueItem->q_id, "FabApp Notification", "Your Wait Ticket has been cancelled", 'From: FabApp Notifications' . "\r\n" .'', 0);
+
             if ($mysqli->query("
                 UPDATE `wait_queue`
                 SET `valid` = 'N', `End_date` = CURRENT_TIMESTAMP
@@ -161,8 +161,8 @@ class Wait_queue {
             else {
                 return $mysqli->error;
             }
-        
-    
+
+
         // If they are not waiting for any other jobs, then delete their contact information
         if (!Wait_queue::isOperatorWaiting($queueItem->operator)) {
             Wait_queue::deleteContactInfo($queueItem->q_id);
@@ -211,39 +211,53 @@ class Wait_queue {
         } else {
             return $mysqli->error;
         }
-        
 
-        Notifications::sendNotification($q_id, "FabApp Notification", "Your Wait Ticket has been completed.", 'From: FabApp Notifications' . "\r\n" .'', 0);
-        
 
-        $msg = Wait_queue::deleteContactInfo($q_id);
-        if (is_string($msg)) {
-            return $msg;
-        }
+      Notifications::sendNotification($q_id, "FabApp Notification", "Your Wait Ticket has been completed.", 'From: FabApp Notifications' . "\r\n" .'', 0);
+
+
+      //$msg = Wait_queue::deleteWaitInfo($q_id);
+      //if (is_string($msg)) {
+        //  return $msg;
+        //}
 
         // Calculate new wait times based off a person leaving the wait queue
         Wait_queue::calculateWaitTimes();
     }
 
-    public static function deleteContactInfo($q_id)
+    public static function deleteWaitInfo($q_id)
+    {
+        global $mysqli;
+        if ($mysqli->query("
+            UPDATE `wait_queue`
+            SET `End_date` = CURRENT_TIMESTAMP
+            WHERE `Q_id` = $q_id;
+        ")) {
+            //echo("\nSuccessfully deleted $q_id contact info!");
+        } else {
+            return ("Error deleting $op contact info!");
+        }
+    }
+
+    public static function deleteContactInfo($op)
     {
         global $mysqli;
         if ($mysqli->query("
             UPDATE `wait_queue`
             SET `Op_email`=NULL, `Op_phone`=NULL, `carrier` = NULL, `valid` = 'N', `End_date` = CURRENT_TIMESTAMP
-            WHERE `Q_id` = $q_id;
+            WHERE `Operator` = $op;
         ")) {
             //echo("\nSuccessfully deleted $q_id contact info!");
         } else {
-            return ("Error deleting $q_id contact info!");
+            return ("Error deleting $op contact info!");
         }
     }
-    
+
     public static function updateContactInfo($q_id, $ph, $em, $carrier_name, $old_operator, $new_operator, $devgr_id)
     {
         global $mysqli;
         $status= 0;
-        
+
         //Validate input variables
         if($old_operator != $new_operator){
             if (!self::regexOperator($new_operator)) {
@@ -259,7 +273,7 @@ class Wait_queue {
         if ($old_operator == $new_operator){
             $new_operator = $old_operator;
         }
-        
+
         if (!self::regexPhone($ph) && !empty($ph)) {
             $status = 1;
             return "Bad Phone Number - $ph";
@@ -268,12 +282,12 @@ class Wait_queue {
             $status = 1;
             return "Bad Email - $em";
         }
-        
+
         if(!empty($ph) && empty($carrier_name)) {
             $status = 1;
             return "Incorrect Carrier Selection";
         }
-        
+
         if ($status == 0){
             if ($mysqli->query("
                 UPDATE `wait_queue`
@@ -287,11 +301,11 @@ class Wait_queue {
             }
         }
     }
-    
+
     public static function removeAllUsers()
      {
         global $mysqli;
-        
+
         if ($mysqli->query("
             UPDATE `wait_queue`
             SET `Op_email` = NULL, `Op_phone` = NULL, `carrier` = NULL, `End_date` = CURRENT_TIMESTAMP, valid='N'
@@ -301,9 +315,9 @@ class Wait_queue {
         } else {
             echo ("Error deleting users!");
         }
-        
+
     }
-    
+
     public static function calculateWaitTimes()
     {
         global $mysqli, $status;
@@ -322,17 +336,17 @@ class Wait_queue {
                 if ($result2 = $mysqli->query("
                     SELECT `devices`.`d_id`, `t_start`, `est_time`, `t_end`
                     FROM `devices` JOIN `device_group` ON `devices`.`dg_id` = `device_group`.`dg_id`
-                    LEFT JOIN (SELECT `t_start`, `t_end`, `est_time`, `d_id`, `status_id` FROM `transactions` WHERE `status_id` < $status[total_fail]) as t 
+                    LEFT JOIN (SELECT `t_start`, `t_end`, `est_time`, `d_id`, `status_id` FROM `transactions` WHERE `status_id` < $status[total_fail]) as t
                     ON `devices`.`d_id` = `t`.`d_id`
                     WHERE `public_view` = 'Y' AND `device_group`.`dg_id` = $device_group AND `devices`.`d_id` NOT IN (
-                    
+
                         SELECT `d_id`
                         FROM `service_call`
                         WHERE `solved` = 'N' AND `sl_id` >= 7
                     )
                     ORDER BY `device_group`.`dg_id`, `device_desc`
                 ")) {
-                    // Create an array with size equal to the number of devices in that group that holds the number of seconds to wait 
+                    // Create an array with size equal to the number of devices in that group that holds the number of seconds to wait
                     $estTimes = array();
 
                     // Gather all of the times
@@ -372,7 +386,7 @@ class Wait_queue {
                         WHERE `valid` = 'Y' AND `WQ`.`Devgr_id` = $device_group
                         ORDER BY `Q_id`;
                     ")) {
-                        
+
                         // For each device waiting in this device group
                         $count = 0;
                         while ($row2 = $result2->fetch_assoc())
@@ -383,7 +397,7 @@ class Wait_queue {
                                 $rmins = floor($estTimes[$count] / 60 % 60);
                                 $rsecs = floor($estTimes[$count] % 60);
                                 $timeFormat = sprintf('%02d:%02d:%02d', $rhours, $rmins, $rsecs);
-                                
+
                                 //echo ($timeFormat."<br/>");
 
                                 if ($result3 = $mysqli->query("
@@ -428,9 +442,9 @@ class Wait_queue {
                 if ($result2 = $mysqli->query("
                     SELECT `devices`.`d_id`, `t_start`, `est_time`, `t_end`
                     FROM `devices` JOIN `device_group` ON `devices`.`dg_id` = `device_group`.`dg_id`
-                        LEFT JOIN (SELECT `t_start`, `t_end`, `est_time`, `d_id`, `operator`, `status_id` FROM `transactions` WHERE `status_id` < $status[total_fail]) as t 
+                        LEFT JOIN (SELECT `t_start`, `t_end`, `est_time`, `d_id`, `operator`, `status_id` FROM `transactions` WHERE `status_id` < $status[total_fail]) as t
                         ON `devices`.`d_id` = `t`.`d_id`
-                    WHERE `public_view` = 'Y' AND `devices`.`d_id` = $device_id AND `devices`.`d_id` NOT IN 
+                    WHERE `public_view` = 'Y' AND `devices`.`d_id` = $device_id AND `devices`.`d_id` NOT IN
                     (
                         SELECT `d_id`
                         FROM `service_call`
@@ -438,7 +452,7 @@ class Wait_queue {
                     )
                     ORDER BY `device_group`.`dg_id`, `device_desc`
                 ")) {
-                    // Create an array with size equal to the number of devices in that group that holds the number of seconds to wait 
+                    // Create an array with size equal to the number of devices in that group that holds the number of seconds to wait
                     global $estTimes;
 
                     // Set the remaining time of the current job on the device
@@ -475,7 +489,7 @@ class Wait_queue {
                         WHERE valid = 'Y' AND WQ.Dev_id = $device_id
                         ORDER BY Q_id;
                     ")) {
-                        
+
                         // For each person waiting in this device
                         $count = 0;
                         while ($row2 = $result2->fetch_assoc())
@@ -518,12 +532,12 @@ class Wait_queue {
 
     public static function hasDGWait($operator , $dg_id){
         global $mysqli;
-        return mysqli_num_rows($mysqli->query(" 
-                                SELECT * 
-                                FROM `wait_queue` 
+        return mysqli_num_rows($mysqli->query("
+                                SELECT *
+                                FROM `wait_queue`
                                 WHERE `Operator`=$operator AND `devgr_id`=$dg_id AND `valid` = 'Y'"))>0;
     }
-    
+
     public static function getTabResult(){
         global $mysqli;
         if ($result = $mysqli->query("
@@ -544,7 +558,7 @@ class Wait_queue {
             return true;
         return false;
     }
-    
+
     public static function regexOperator($op_id) {
         if ( preg_match("/^\d{10}$/", $op_id) == 1 )
             return true;
@@ -572,8 +586,8 @@ class Wait_queue {
             return "DG Construct: Error with table";
         }
     }
-    
-    
+
+
     public static function printTicket($operator, $dg_id){
         global $mysqli;
         global $tp;
@@ -628,10 +642,10 @@ class Wait_queue {
             $printer -> setTextSize(1, 1);
             if (isset($timeLeft)){
                 $printer -> feed();
-                $printer -> text("Est. Duration:   ".$timeLeft); 
+                $printer -> text("Est. Duration:   ".$timeLeft);
             }
-            $printer -> feed(2);  
-            
+            $printer -> feed(2);
+
             //body
             $printer -> setJustification(Printer::JUSTIFY_LEFT);
             $printer -> setEmphasis(true);
@@ -672,7 +686,7 @@ class Wait_queue {
             $printer -> setEmphasis(true);
             $printer -> text("http://fablab.uta.edu/policy");
             $printer -> feed();
-            
+
         } catch (Exception $print_error) {
             //echo $print_error->getMessage();
             $printer -> text($print_error->getMessage());
@@ -689,7 +703,7 @@ class Wait_queue {
             echo "Couldn't print to this printer: " . $e -> getMessage() . "\n";
         }
     }
-    
+
     public function setWaitId($q_id) {
         $this->q_id = $q_id;
     }
@@ -753,11 +767,11 @@ class Wait_queue {
     public function getContactInfo() {
         return array($this->getPhone(), $this->getEmail(), $this->getLastContacted());
     }
-    
+
     public function getStartTime() {
         return $this->start_time;
     }
-    
+
 
 }
 ?>
