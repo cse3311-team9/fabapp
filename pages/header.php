@@ -261,7 +261,9 @@ include_once ($_SERVER['DOCUMENT_ROOT'].'/pages/sub/notificationSettings_Modal.p
 								    $result = Service_call::openSC_notifications();
 								    $ticket_count  = count($result);
 								    if($ticket_count == 0) { //If there are no tickets?> 
-										<p> No recent tickets </p>
+								    	<li style ="margin:0 18px;">
+											<p> No recent tickets </p>
+										</li>
 									<?php }
 									elseif($ticket_count <= 3) { //If  there are less than three tickets ?>
 										<li style ="margin:0 18px;">
