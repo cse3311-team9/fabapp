@@ -16,7 +16,7 @@
 *		-Storage Box
 *
 *	DESCRIPTION: Complete active tickets without charge.  Prepare active tickets for 
-*	 payment by marking material usage, and ticket status.  This is the last step for totally failed
+*	 payment by marking material usage, and ticket status.  This is the last step for total failed
 *	 tickets.  Displays additional transaction information
 *	FUTURE:	-Add ability to add additional materials
 *				-Add min time $sv force JS to time based mats_used

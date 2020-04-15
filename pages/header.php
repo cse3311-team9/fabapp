@@ -198,110 +198,117 @@ include_once ($_SERVER['DOCUMENT_ROOT'].'/pages/sub/notificationSettings_Modal.p
 						<a class="dropdown-toggle" data-toggle="dropdown" href="#">
 							<i class="fas fa-bell fa-2x"></i> <i class="fas fa-caret-down"></i>
 						</a>
-						<?php if ($staff->getRoleID() == 2 || $staff->getRoleID() == 4) { ?> <!-- Dropdown for Learner -->
-							<ul class="dropdown-menu dropdown-user" style="padding-bottom: 0; width: 240px;">
-								<?php if( !Wait_queue::getWaitPosition($staff->getOperator()) && !$staff->history() ){ ?>
+						<?php if ($staff->getRoleID() < $sv['serviceTechnican'] || $staff->getRoleID() == $sv['LvlOfStaff']){ ?> <!-- Dropdown for operators with role less than that of serviceTechnician (Visitors, Learners, Learners with Rfid, Community Members) or role of Staff-->
+							<ul class="dropdown-menu dropdown-user" style="padding-bottom: 0; padding-top: 0; width: 240px;">
+							    <li style = "background-color: lightgrey; border: 1px solid #888; margin-bottom: 9px; padding: 6px 4px; color: black">Notifications</li>
+								<?php $wait_position = Wait_queue::getWaitPosition($staff->getOperator());
+								$ticket_history = $staff->history();
+								if( !$wait_position && !$ticket_history ){ ?> 
 									<p style="margin: 5px 0; padding-left: 30px">No recent notifications</p>
 								<?php }
 								else
 								{
-									if( Wait_queue::getWaitPosition($staff->getOperator()) ){ ?>
+									if($wait_position){ ?> <!-- Disply active wait queue positions -->
 										<li style = "margin:0 18px;">
 											<!--<a href="/pages/info.php" onclick="loadingModal()">-->
 											<i class="fas fa-list-ol"></i> <b>Queue Info:</b><br>
-											<?php foreach (Wait_queue::getWaitPosition($staff->getOperator()) as $device => $position){ ?>
-			                               		<p style="margin: 0px; padding-left: 30px"><a href="../index.php" style = "padding-right:0px; padding-left: 0px;"><?php echo "Device ".$device.": " ?></a><?php echo "Position ".$position[0]." in line"; ?></p>	            
-			                    			<?php } //Clear everything when loading device info while in other pages?>
+											<?php foreach ($wait_position as $device => $position){ ?>
+			                               		<p style="margin: 0px; padding-left: 30px"><?php echo $position[0].": "."Position ".$position[1]." in line" ; ?></p>        
+			                    			<?php } ?>
 											<!--</a>-->
 										</li>
 										<li class="divider"></li>
 									<?php }
-									if( $staff->history()){ ?>
+									if($ticket_history){ ?> <!-- Display ticket balance and ticket status (Active, complete, cancelled etc) -->
 										<li style ="margin:0 18px;">
 											<!--<a href="/pages/info.php" onclick="loadingModal()"> -->
 											<i class="fas fa-money-check-alt"></i> <b>Balance:</b>
-											<?php foreach ($staff->history() as $ticket){ ?>			            
+											<?php foreach ($ticket_history as $ticket){ ?>			            
 			                               		<p style="margin: 0px; padding-left: 30px"><a href="/pages/lookup.php?trans_id=<?php echo $ticket[0];?>" style = "padding-right:0px; padding-left: 0px;"><?php echo "Ticket ".$ticket[0];?></a>: <?php echo (!isset($ticket[4]))? "$0.00 Due": $ticket[4]." owed";?></p>
 			                				<?php } ?>
 											<!--</a>-->
 										</li>
 										<li class="divider"></li>
 										<li style = "margin:0 18px;">
-											<!-- <a href="/pages/info.php" onclick="loadingModal()"> -->
 											<i class="fas fa-ticket-alt"></i> <b>Ticket Status:</b>
-											<?php foreach ($staff->history() as $ticket){ ?>			            
+											<?php foreach ($ticket_history as $ticket){ ?>			            
 				                            	<p style="margin: 0px; padding-left: 30px"><a href="/pages/lookup.php?trans_id=<?php echo $ticket[0];?>" style = "padding-right:0px; padding-left: 0px;"><?php echo "Ticket ".$ticket[0];?></a>: <?php echo $ticket[3];?></p>
-			                    			<?php } ?>
-			                    			<!-- </a> -->			       
+			                    			<?php } ?>		       
 										</li>
-										<br>
-									<?php } ?>
-								<?php } ?>
+										<li class="divider"></li>
+									<?php } 
+									if($staff->getRoleID() == $sv['LvlOfStaff']){ ?> <!-- If operator has role of staff then display device status -->
+										<li style = "margin:0 18px;">
+											<i class="fas fa-ticket-alt"></i> <b>Device Status:</b>
+											<p style="margin: 0px; padding-left: 30px"> 3D Scanner Station: In Use</p>
+										</li>
+									<?php }
+								} ?>
 								<li class="divider" style="margin-bottom: 0;"></li>
-								<li>
+								<li> 
 									<button type="button" class="btn btn-info btn-block" data-toggle="modal" data-target="#settingsModal" 
-									style="background-color: lightgrey; color: black; border-color: black;">
-										<i class="fas fa-cog"></i>  Notification Settings
+									style="background-color: lightgrey; color: black; border: 1px solid #888; padding:4px">
+										<i class="fas fa-cog"></i>  Settings
 									</button>
 								</li>
 							</ul>							
-						<?php }
-						elseif ($staff->getRoleID() == $sv['LvlOfStaff']) { ?> <!-- Dropdown for Staff -->
-							<ul class="dropdown-menu dropdown-user" style="padding-bottom: 0; width: 230px;">
-								<li>
-									<a href="/pages/waitUserInfo.php" onclick="loadingModal()">
-										<i class="fas fa-list-ol"></i> <b>Queue Info:</b>
-										<p style="margin: 0px; padding-left: 30px">3rd in line: ETA 10 mins</p>
-									</a>
-								</li>
-								<li class="divider"></li>
-									<li>
-										<a href="/pages/pay.php" onclick="loadingModal()">
-											<i class="fas fa-money-check-alt"></i> <b>Balance:</b>
-											<p style="margin: 0px; padding-left: 30px">Ticket 1234: $1.37</p>
-											<p style="margin: 0px; padding-left: 30px">Ticket 5678: $0.75</p>
-										</a>
-									</li>
-								<li class="divider"></li>
-								<li>
-									<a href="/pages/lookup.php" onclick="loadingModal()">
-										<i class="fas fa-ticket-alt"></i> <b>Ticket Status:</b>
-										<p style="margin: 0px; padding-left: 30px">Ticket 1234: In Storage</p>
-										<p style="margin: 0px; padding-left: 30px">Ticket 5678: Printing...</p>
-									</a>
-								</li>
-								<li class="divider" style="margin-bottom: 0;"></li>
-								<li>
-									<button type="button" class="btn btn-info btn-block" data-toggle="modal" data-target="#settingsModal" 
-									style="background-color: lightgrey; color: black; border-color: black;">
-										<i class="fas fa-cog"></i>  Notification Settings
-									</button>
-								</li>
-							</ul>
 						<?php } 
-						elseif ($staff->getRoleID() == $sv['serviceTechnican']) { ?> <!-- Dropdown for Service member -->
-							<ul class="dropdown-menu dropdown-user" style="padding-bottom: 0; width: 250px;">
-								<li style ="margin:0 18px;">
-									<i class="fas fa-ticket-alt"></i> <b>Service Ticket:</b>
+						elseif ($staff->getRoleID() == $sv['serviceTechnican']) { ?> <!-- Dropdown for Service member (Displays a maximum of three tickets for each category oldest  tickets and newest tickets-->
+							<ul class="dropdown-menu dropdown-user" style="padding-bottom: 0; padding-top: 0; width: 250px;">
+								<li style = "background-color: lightgrey; border: 1px solid #888; margin-bottom: 9px; padding: 6px 4px; color: black">Notifications</li>
+									<p style = "display:inline-block; margin-bottom: 5px; margin-left:18px"><i class="fas fa-ticket-alt"></i><b> Service Ticket:</b></p>
 								    <?php 
-								    $count = 0;
-								    $result = Service_call::openSC();
-	                    			while($row = $result->fetch_assoc()){ $count++; ?>
-											<p style="margin: 0px; padding-left: 30px">
-												<a href="/pages/sr_log.php?sc_id=<?php echo $row["sc_id"];?>" onclick="loadingModal()" style = "padding-left: 0; padding-right:0"><?php echo "Service Ticket ".$row["sc_id"];?></a>
-													:
-												<?php echo Service_lvl::sltoMsg($row["sl_id"]); ?>
-											</p>
-									<?php } 
-									if($count == 0){ ?>
+								    $result = Service_call::openSC_notifications();
+								    $ticket_count  = count($result);
+								    if($ticket_count == 0) { //If there are no tickets?> 
 										<p> No recent tickets </p>
+									<?php }
+									elseif($ticket_count <= 3) { //If  there are less than three tickets ?>
+										<li style ="margin:0 18px;">
+											<p> Oldest tickets </p>
+											<?php foreach($result as $ticket) { ?>
+												<p style="margin-bottom: 2px; padding-left: 30px">
+													<?php echo Service_lvl::getDot($ticket[1])?><a href="/pages/sr_log.php?sc_id=<?php echo $ticket[0];?>" onclick="loadingModal()" style = "margin-left: 5px; padding-left:0; padding-right:0"><?php echo "Service Ticket ".$ticket[0];?></a>	
+												</p>
+											<?php } ?>
+										</li>
+									<?php } 
+									else{ //If there are more than three service tickets ?> 
+										<li style ="margin:0 18px;">
+											<p> Oldest tickets </p>
+											<?php 
+											$ticket = $result;
+											for($i = 0; $i < 3; $i++){ //Display the first 3 tickets in the array as oldest tickets ?>
+												<p style="margin-bottom: 2px; padding-left: 30px">
+													<?php echo Service_lvl::getDot($ticket[$i][1])?><a href="/pages/sr_log.php?sc_id=<?php echo $ticket[$i][0];?>" onclick="loadingModal()" style = "margin-left: 5px; padding-left:0; padding-right:0"><?php echo "Service Ticket ".$ticket[$i][0];?></a>	
+												</p>
+											<?php } ?>
+										</li>
+										<li class="divider" style="margin-bottom: 0;"></li>
+										<li style ="margin:0 18px;">
+											<p> Most recent tickets </p>
+											<?php if($ticket_count <= 6){ //Display the tickets(maximum of three) starting from the end of the array as most recent tickets 
+											    for($i = $ticket_count - 1; $i > 2; $i--){ ?>
+													<p style="margin-bottom: 2px; padding-left: 30px;">
+														<span style = "display:inline-block;min-width:15px"><?php echo Service_lvl::getDot($ticket[$i][1])?></span><a href="/pages/sr_log.php?sc_id=<?php echo $ticket[$i][0];?>" onclick="loadingModal()" style = "margin-left: 5px; padding-left:0; padding-right:0"><?php echo "Service Ticket ".$ticket[$i][0];?></a>	
+													</p>
+											<?php }
+											}
+											else{
+												for($i = $ticket_count - 1; $i > $ticket_count - 4; $i--){ ?>
+													<p style="margin-bottom: 2px; padding-left: 30px">
+														<?php echo Service_lvl::getDot($ticket[$i][1])?><a href="/pages/sr_log.php?sc_id=<?php echo $ticket[$i][0];?>" onclick="loadingModal()" style = "margin-left: 5px; padding-left:0; padding-right:0"><?php echo "Service Ticket ".$ticket[$i][0];?></a>	
+													</p>
+												<?php }
+											} ?>
+										</li>	
 									<?php } ?>
 								</li>
 								<li class="divider" style="margin-bottom: 0;"></li>
 								<li>
 									<button type="button" class="btn btn-info btn-block" data-toggle="modal" data-target="#settingsModal" 
-									style="background-color: lightgrey; color: black; border-color: black;">
-										<i class="fas fa-cog"></i>  Notification Settings
+									style="background-color: lightgrey; color: black; border: 1px solid #888; padding:4px">
+										<i class="fas fa-cog"></i>  Settings
 									</button>
 								</li>
 							</ul>
