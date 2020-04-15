@@ -371,7 +371,7 @@ function exit_with_success($message, $redirect=null) {
 								<tr>
 									<td>Staff</td>
 									<td>
-										<i class='<?php echo $ticket->staff->icon; ?>'></i>";
+										<i class='<?php echo $ticket->staff->icon; ?>'></i>
 									</td>
 								</tr>
 							<?php 
@@ -495,7 +495,7 @@ function exit_with_success($message, $redirect=null) {
 						<i class="fas fa-wrench fa-lg" title="Undo"></i> Service Ticket
 					</div>
 					<div class="panel-body">
-						Since it failed, should we Report an Issue with <?php echo $ticket->device->description; ?>
+						Since it failed, should we Report an Issue with <?php echo /*$ticket->device->description;*/ $ticket->device->name; ?>
 						<form name="undoForm" method="post" action="/pages/sr_issue.php?d_id=<?php echo $ticket->device->device_id; ?>">
 							<input type="submit" name="issueBtn" class="btn btn-warning" value="Report Issue"/>
 						</form>
