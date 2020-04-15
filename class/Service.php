@@ -168,12 +168,36 @@ class Service_call {
 			LEFT JOIN `devices`
 			ON `service_call`.`d_id` = `devices`.`d_id`
 			WHERE `solved` = 'N'
-			ORDER BY `sc_id` ASC
+			ORDER BY `sc_id` ASC 
 		")){
 			return $result;
 		} else {
 			return "";
 		}
+	}
+
+	//Returns results of open Service Calls in order of time (ASC), service level (DESC), service_id (ASC) for dropdown displays
+	public static function openSC_notifications(){
+		global $mysqli;
+		$srv_tickets = array();
+
+		if ($result = $mysqli->query("
+			SELECT `device_desc`, `sl_id`, `sc_id`, `staff_id`, `sc_time`, `sc_notes`, `solved`
+			FROM `service_call`
+			LEFT JOIN `devices`
+			ON `service_call`.`d_id` = `devices`.`d_id`
+			WHERE `solved` = 'N'
+			ORDER BY `sc_time` ASC, `sl_id` DESC, `sc_id` ASC 
+		"))
+		{
+			while($row  = $result->fetch_assoc())
+			{
+				//array_push($srv_tickets,array($row["device_desc"],$row["sl_id"], $row["staff_id"], $row["sc_time"],$row["sc_notes"],$row["solved"]));\
+				array_push($srv_tickets,array($row["sc_id"],$row["sl_id"]));
+			}
+		} 
+
+		return $srv_tickets;
 	}
 
 	public function setDevice($device_id) {

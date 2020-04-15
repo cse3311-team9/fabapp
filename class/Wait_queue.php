@@ -524,44 +524,47 @@ class Wait_queue {
                                 WHERE `Operator`=$operator AND `devgr_id`=$dg_id AND `valid` = 'Y'"))>0;
     }
 
+    // Function to return current position in wait queue for single or multiple device groups
     public static function getWaitPosition($operator){
         global $mysqli;
         $wait_position = array();
-        $position = 0;
+        // Pull up all device group ID where operator is enrolled in wait queue
         if(!$result = $mysqli->query("
                         SELECT devgr_id
                         FROM `wait_queue`
                         WHERE `Operator` = $operator AND `valid` = 'Y' "))
         {
-            return $wait_position;
+            return $wait_position; // Return NULL array if operator is not enrolled in wait queue
         }
         else{ 
             while($row = $result->fetch_assoc())
             {
-                $wait_position[$row["devgr_id"]] = array(0,0);
+                $wait_position[$row["devgr_id"]] = array("",0,0); // Key -> Device group ID 
+                                                                  // Values -> Device description, Wait queue position, Signal to check if operator's wait queue position has been stored
             }
         };
 
         $devicegr_id  = implode(", ",array_keys($wait_position));
-
+        
         if($result1 = $mysqli->query("
-                        SELECT Operator, devgr_id
-                        FROM `wait_queue`
+                        SELECT Operator, devgr_id, dg_desc, device_desc
+                        FROM `wait_queue` WQ JOIN `device_group` DG ON WQ.devgr_id = DG.dg_id 
+                        LEFT JOIN `devices` D ON WQ.dev_id = D.d_id
                         WHERE `devgr_id` IN ($devicegr_id)  AND `valid` = 'Y' 
                         ORDER BY `Start_date` ASC"))
         {
-         while($row = $result1->fetch_assoc()){
-            if(strcmp($row["Operator"],$operator) != 0 && $wait_position[$row["devgr_id"]][1] == 0)
-            {
-                $wait_position[$row["devgr_id"]][0]++; 
+             while($row = $result1->fetch_assoc()){
+                if(strcmp($row["Operator"],$operator) != 0 && $wait_position[$row["devgr_id"]][2] == 0) // If current ID doesn't match operator's ID and opertor's final wait queue position hasn't been calculated increase wait queue position 
+                {
+                    $wait_position[$row["devgr_id"]][1]++; 
+                }
+                elseif (strcmp($row["Operator"],$operator) == 0 && $wait_position[$row["devgr_id"]][2] == 0) // If current ID matches operator's ID then calculate operator's final wait queue position and make no further increments by setting signal to 1
+                {
+                    $row["devgr_id"] == 2 ? $wait_position[$row["devgr_id"]][0] = $row["dg_desc"] : $wait_position[$row["devgr_id"]][0] = $row["device_desc"] ;
+                    $wait_position[$row["devgr_id"]][1]++;
+                    $wait_position[$row["devgr_id"]][2] = 1;
+                }
             }
-            else
-            {
-                $wait_position[$row["devgr_id"]][0]++;
-                $wait_position[$row["devgr_id"]][1] = 1;
-            }
-        }
-
         }
         return $wait_position;
     }

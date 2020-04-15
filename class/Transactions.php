@@ -65,7 +65,7 @@ class Transactions {
 			$row = $result->fetch_assoc();
 			$this->acct_charge = Acct_charge::byTrans_id($trans_id);
 			$this->device = new Devices($row['d_id']);  //REMOVE WITH UPDATE
-			$this->duration = 0;//$row['duration'];
+			$this->duration = 0; //$row['duration'];
 			// $this->device = new Devices($row['device_id']);  //ADD WITH UPDATE
 			$this->est_time = $row['est_time'];
 			if(substr_count($row['notes'], "⦂")) $this->filename = explode("⦂", $row['notes'])[0];
@@ -248,7 +248,7 @@ class Transactions {
 							(`operator`, `d_id`, `t_start`, `t_end`, `status_id`, `p_id`, `est_time`, `staff_id`, `notes`) 
 							-- (`operator`,`device_id`,`t_start`,`status_id`,`p_id`,`est_time`,`staff_id`, `notes`) 
 							VALUES
-							('$operator->operator', '$device_id', CURRENT_TIMESTAMP, $t_end, '$status_id', '$p_id', '00:10:00', '$staff->operator', $note);"
+							('$operator->operator', '$device_id', CURRENT_TIMESTAMP, $t_end, '$status_id', '$p_id', /*'$est_time'*/ '00:03:00', '$staff->operator', $note);"
 		)){
 			return $mysqli->insert_id;
 		}
