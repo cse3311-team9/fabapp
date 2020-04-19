@@ -65,7 +65,7 @@ class Transactions {
 			$row = $result->fetch_assoc();
 			$this->acct_charge = Acct_charge::byTrans_id($trans_id);
 			$this->device = new Devices($row['d_id']);  //REMOVE WITH UPDATE
-			$this->duration = $row['duration'];
+			$this->duration = 0; //$row['duration'];
 			// $this->device = new Devices($row['device_id']);  //ADD WITH UPDATE
 			$this->est_time = $row['est_time'];
 			if(substr_count($row['notes'], "⦂")) $this->filename = explode("⦂", $row['notes'])[0];
@@ -248,7 +248,7 @@ class Transactions {
 							(`operator`, `d_id`, `t_start`, `t_end`, `status_id`, `p_id`, `est_time`, `staff_id`, `notes`) 
 							-- (`operator`,`device_id`,`t_start`,`status_id`,`p_id`,`est_time`,`staff_id`, `notes`) 
 							VALUES
-							('$operator->operator', '$device_id', CURRENT_TIMESTAMP, $t_end, '$status_id', '$p_id', '$est_time', '$staff->operator', $note);"
+							('$operator->operator', '$device_id', CURRENT_TIMESTAMP, $t_end, '$status_id', '$p_id', /*'$est_time'*/ '00:03:00', '$staff->operator', $note);"
 		)){
 			return $mysqli->insert_id;
 		}
@@ -523,21 +523,25 @@ class Transactions {
 		$pickedup_by = $this->pickedup_by ? $this->pickedup_by->operator : null;
 
 		// update transaction info
-		$statement = $mysqli->prepare("UPDATE `transactions`
+		if($statement = $mysqli->prepare("UPDATE `transactions`
 											SET `d_id` = ?, `operator` = ?, `t_start` = ?, 
 											`t_end` = ?, `status_id` = ?, `staff_id` = ?, 
 											`pickup_time` = ?, `pickedup_by` = ?,  `notes` = ?,
-											`duration` = ?
-											WHERE `trans_id` = ?;");
+											`est_time` = ?
+											WHERE `trans_id` = ?;")){
 
 		$statement->bind_param("dsssdsssssd", $this->device->device_id, $this->user->operator, $this->t_start, 
 									$this->t_end, $this->status->status_id, $this->staff->operator, 
 									$this->pickup_time, $pickedup_by, $this->filename_and_notes(), 
-									$this->duration,
+									$this->est_time,//$this->duration,
 									$this->trans_id);
 
-
-
+		}
+		else
+		{
+			$error = $mysqli->errno . ' ' . $mysqli->error;
+    		echo $error; // 1054 Unknown column 'foo' in 'field list'
+		}
 		if(!$statement->execute()) return "Could not update transaction values";
 
 		return null;  // no errors
