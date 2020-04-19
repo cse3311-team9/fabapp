@@ -46,11 +46,11 @@ if($staff->roleID < $role['staff'] || ($staff->operator == $ticket->user->operat
 	exit_if_error("You do not have permission to end this ticket.  Please ask a staff member", "/pages/lookup.php?trans_id=$trans_id");
 
 // prevent ending ended tickets except those that are prepaid—this way the materials used are confirmed
-if($ticket->status->status_id > $status['moveable'] && !$ticket->device->device_group->is_pay_first) 
+if($ticket->status->status_id > $status['moveable'] && !$ticket->device_group->is_pay_first) 
 	exit_if_error("Transaction #$trans_id already ended");
 
 // no cost associated with ticket && not assign materials after ticket; auto close
-if($ticket->no_associated_materials_have_a_price() && $ticket->device->device_group->is_select_mats_first) {
+if($ticket->no_associated_materials_have_a_price() && $ticket->device_group->is_select_mats_first) {
 	exit_if_error($ticket->end_transaction($staff, $status['complete']));
 	$_SESSION['success_msg'] = "End: Ticket successfully ended";
 	header("Location:/pages/lookup.php?trans_id=$ticket->trans_id");

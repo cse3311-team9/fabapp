@@ -192,7 +192,7 @@ include_once ($_SERVER['DOCUMENT_ROOT'].'/pages/sub/notificationSettings_Modal.p
 				<?php }
 				else {?>
 					<li>
-						<p style="color: white">Current User ID: <?php echo $staff->getOperator(); ?></p>
+						<p style="color: white">Current User ID: <?php echo $staff->operator; ?></p>
 					</li>
 					<?php if ($staff->getRoleID() < $sv['serviceTechnican'] || $staff->getRoleID() == $sv['LvlOfStaff']){ ?> <!-- Dropdown for operators with role less than that of serviceTechnician (Visitors, Learners, Learners with Rfid, Community Members) or role of Staff-->
 						<li class="dropdown">
@@ -317,6 +317,7 @@ include_once ($_SERVER['DOCUMENT_ROOT'].'/pages/sub/notificationSettings_Modal.p
 						<!-- /.dropdown-notification -->
 					<?php } ?>
 					</li>
+
 					<li class="dropdown">
 						<a class="dropdown-toggle" data-toggle="dropdown" href="#">
 							<i class="<?php echo $staff->getIcon();?> fa-2x"></i> <i class="fas fa-caret-down"></i>
@@ -329,7 +330,7 @@ include_once ($_SERVER['DOCUMENT_ROOT'].'/pages/sub/notificationSettings_Modal.p
 						<!-- /.dropdown-user -->
 					</li>
 					<!-- /.dropdown -->
-				<?php } ?>	
+			<?php }?>	
 			</ul>
 			<!-- /.navbar-top-links -->
 			<div class="navbar-default sidebar" role="navigation">
