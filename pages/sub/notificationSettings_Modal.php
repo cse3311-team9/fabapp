@@ -7,6 +7,7 @@
 *	 settings for the currently logged in user.
 *
 **************************************************/
+
 ?>
 <link href="/vendor/w3/toggle.css" rel="stylesheet" type="text/css">
 
@@ -19,12 +20,17 @@
             </div>
             <form name="form" action="" method="post">
                 <?php
-                    if($result = $mysqli->query("
+                    $operator = isset($staff->operator) ? $staff->operator : "";
+                    $sql = $mysqli->prepare("
                         SELECT Op_email, Op_phone, carrier
                         FROM wait_queue
-                        WHERE Operator = $staff->operator
-                    "))
+                        WHERE Operator = ?
+                    ");
+                    $sql->bind_param("s", $operator);
+
+                    if($sql->execute())
                     {
+                        $result = $sql->get_result();
                         $row = $result->fetch_assoc();
                         $email = $row['Op_email'];
                         $phone = $row['Op_phone'];
@@ -77,12 +83,16 @@
                             $email = $_POST['email'];
                             $phone = $_POST['phone'];
                             $carrier = $_POST['carrier'];
+                            $operator = isset($staff->operator) ? $staff->operator : "";
 
-                            if ($mysqli->query("
-                                    UPDATE wait_queue
-                                    SET Op_email = '$email', Op_phone = '$phone', carrier = '$carrier'
-                                    WHERE Operator = $staff->operator
-                                "))
+                            $sql = $mysqli->prepare("
+                                UPDATE wait_queue
+                                SET Op_email = ?, Op_phone = ?, carrier = ?
+                                WHERE Operator = ?
+                            ");
+                            $sql->bind_param("ssss", $email, $phone, $carrier, $operator);
+
+                            if ($sql->execute())
                             {
                                 echo '<script>alert("Update Succesful");</script>';
                             }
@@ -95,14 +105,19 @@
                         }
 
                         if(array_key_exists('btnDrop', $_POST)) { 
-                            $mysqli->query("
+                            $operator = isset($staff->operator) ? $staff->operator : "";
+
+                            $sql = $mysqli->prepare("
                                 UPDATE wait_queue
                                 SET Op_email = '', Op_phone = '', carrier = ''
-                                WHERE Operator = $staff->operator
+                                WHERE Operator = ?
                             ");
+                            $sql->bind_param("s", $operator);
+                            $sql->execute();
 
                             header("Refresh:0");
                         }
+                        echo "<script>console.log('$staff->operator')</script>";
                     ?>
                     <button type="submit" name="btnSave" class="btn btn-default" style="float: right; margin-right: 10px; background-color: #337ab7; color: white;">Save</button>
                     <button type="submit" name="btnDrop" class="btn btn-default" style="float: left; background-color: red;" title="Erase contact information from database">Drop</button>
