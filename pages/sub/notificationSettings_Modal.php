@@ -7,18 +7,55 @@
 *	 settings for the currently logged in user.
 *
 **************************************************/
-
+$settingsIndex = 0;
 ?>
 <link href="/vendor/w3/toggle.css" rel="stylesheet" type="text/css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script>
+    $("#globalDiv").hide();
+    $("#mySettingsDiv").show();
+    $("#btnDrop").show();
+
+    function showMySettings() {
+        $("#globalDiv").hide();
+        $("#mySettingsDiv").show();
+        $("#btnDrop").show();
+    }
+
+    function showGlobalSettings() {
+        $("#mySettingsDiv").hide();
+        $("#globalDiv").show();
+        $("#btnDrop").hide();
+    }
+</script>
 
 <div id="settingsModal" class="modal fade" role="dialog">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header">
+            <div class="modal-header" style="border-bottom: none;">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
                 <h4 class="modal-title">Notification Settings</h4>
             </div>
             <form name="form" action="" method="post">
+            <div id="menuTabs" class="tabs btn-group">
+            <?php
+                if (isset($staff)) {
+                    if($staff->getRoleID() == $sv['LvlOfStaff']) {
+            ?>
+                <button name="mySettings" class="menuTab btn btn-default" href="#" onclick="showMySettings(); return false;">My Settings</button>
+                <button name="globalSettings" class="menuTab btn btn-default" href="#" onclick="showGlobalSettings(); return false;">Global Settings</button>
+            <?php
+                    }
+                    else
+                    {
+            ?>
+                <button name="mySettings" class="menuTab btn btn-default" href="#" onclick="showMySettings(); return false;" style="width: 100%">My Settings</button>
+            <?php
+                    }
+                }
+            ?>
+                    
+            </div>
                 <?php
                     $operator = isset($staff->operator) ? $staff->operator : "";
                     $sql = $mysqli->prepare("
@@ -45,35 +82,43 @@
                     }
                 ?>
                 <div id="settingsBody" class="modal-body">
-                    <div>
-                        <label>Email:</label>
-                        <input type="text" name="email" id="email" class="form-control" value="<?php echo $email ?>">
+                    <div id="mySettingsDiv">
+                        <div>
+                            <label>Email:</label>
+                            <input type="text" name="email" id="email" class="form-control" value="<?php echo $email ?>">
+                        </div>
+                        <div>
+                            <p></p>
+                            <label>Phone:</label>
+                            <input type="text" name="phone" id="phone" class="form-control" value="<?php echo $phone ?>">
+                        </div>
+                        <div>
+                            <p></p>
+                            <label>Carrier:</label>
+                            <select type="text" name="carrier" id="carrier" class="form-control" value="<?php echo $carrier ?>">
+                                <option value="">--- Select Cell Carrier ---</option>
+                                <option value="AT&T" <?php if ($carrier == "AT&T" ) echo 'selected' ; ?>>AT&T</option>
+                                <option value="Verizon" <?php if ($carrier == "Verizon" ) echo 'selected' ; ?>>Verizon</option>
+                                <option value="T-Mobile" <?php if ($carrier == "T-Mobile" ) echo 'selected' ; ?>>T-Mobile</option>
+                                <option value="Sprint" <?php if ($carrier == "Sprint" ) echo 'selected' ; ?>>Sprint</option>
+                                <option value="Virgin Mobile" <?php if ($carrier == "Virgin Mobile" ) echo 'selected' ; ?>>Virgin Mobile</option>
+                                <option value="Project Fi" <?php if ($carrier == "Project Fi" ) echo 'selected' ; ?>>Project Fi</option>
+                            </select>
+                        </div>
+                        <div align="right">
+                            <p style="height: 10px;"></p>
+                            <label id="muteNotifications" title="Turn on/off email and/or text nofifications and just receive notifications through FabApp" class="switch">
+                                <input type="checkbox">
+                                <span class="slider round"></span>
+                            </label>
+                            <label class="custom-control-label" for="muteNotifications">Mute Notifications</label>
+                        </div>
                     </div>
-                    <div>
-                        <p></p>
-                        <label>Phone:</label>
-                        <input type="text" name="phone" id="phone" class="form-control" value="<?php echo $phone ?>">
-                    </div>
-                    <div>
-                        <p></p>
-                        <label>Carrier:</label>
-                        <select type="text" name="carrier" id="carrier" class="form-control" value="<?php echo $carrier ?>">
-                            <option value="">--- Select Cell Carrier ---</option>
-                            <option value="AT&T" <?php if ($carrier == "AT&T" ) echo 'selected' ; ?>>AT&T</option>
-                            <option value="Verizon" <?php if ($carrier == "Verizon" ) echo 'selected' ; ?>>Verizon</option>
-                            <option value="T-Mobile" <?php if ($carrier == "T-Mobile" ) echo 'selected' ; ?>>T-Mobile</option>
-                            <option value="Sprint" <?php if ($carrier == "Sprint" ) echo 'selected' ; ?>>Sprint</option>
-                            <option value="Virgin Mobile" <?php if ($carrier == "Virgin Mobile" ) echo 'selected' ; ?>>Virgin Mobile</option>
-                            <option value="Project Fi" <?php if ($carrier == "Project Fi" ) echo 'selected' ; ?>>Project Fi</option>
-                        </select>
-                    </div>
-                    <div align="right">
-                        <p style="height: 10px;"></p>
-                        <label id="muteNotifications" title="Turn on/off email and/or text nofifications and just receive notifications through FabApp" class="switch">
-                            <input type="checkbox">
-                            <span class="slider round"></span>
-                        </label>
-                        <label class="custom-control-label" for="muteNotifications">Mute Notifications</label>
+                    <div id="globalDiv" hidden>
+                        <label for="alertMessage">Alert Message:</label>
+                        <div>
+                            <textarea name="alertMessage" id="alertMessage" class="bigTextBox" rows="10"></textarea>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -101,6 +146,8 @@
                                 echo '<script>alert("Update failed");</script>';
                             }
 
+                            // Update alert message
+
                             header("Refresh:0");
                         }
 
@@ -119,8 +166,15 @@
                         }
                         echo "<script>console.log('$staff->operator')</script>";
                     ?>
-                    <button type="submit" name="btnSave" class="btn btn-default" style="float: right; margin-right: 10px; background-color: #337ab7; color: white;">Save</button>
-                    <button type="submit" name="btnDrop" class="btn btn-default" style="float: left; background-color: red;" title="Erase contact information from database">Drop</button>
+                    <button type="submit" name="btnSave" class="btnSave btn btn-default">Save</button>
+                    <?php
+                    if ($settingsIndex == 0)
+                    {
+                    ?>
+                        <button id="btnDrop" type="submit" name="btnDrop" class="btnDrop btn btn-default">Drop</button>
+                    <?php
+                    }
+                    ?>
                 </div>
             </form>
         </div>

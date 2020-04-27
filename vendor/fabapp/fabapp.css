@@ -27,3 +27,34 @@ License - FabApp V 0.9
     border: 1px solid #d8d8d8;
 	float: right;
 }
+
+.menuTab
+{
+    border-radius: 10px 10px 0 0 !important;
+    width: 50%;
+    background-color: lightgray;
+}
+
+.tabs
+{
+    width: 100%;
+}
+
+.btnSave
+{
+    float: right;
+    margin-right: 10px; 
+    background-color: #337ab7; 
+    color: white;
+}
+
+.btnDrop
+{
+    float: left; 
+    background-color: red;
+}
+
+.bigTextBox
+{
+    width: 100%;
+}
