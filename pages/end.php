@@ -4,8 +4,6 @@
 /***********************************************************************************************************
 *
 *	@author Jon Le
-*	Overhauled by: MPZinke on 07.21.19 to add Multiple Material (MultiMaterial Project) 
-*	 editing functionalities. Improved commenting an logic/functionality of page; update in 
 *	Overhauled by: MPZinke on 07.21.19 to add Multiple Material (MultiMaterial Project)
 *	 editing functionalities. Improved commenting an logic/functionality of page; update in
 *	 accordance with future class changes.
