@@ -27,7 +27,7 @@ if (isset($_GET['q_id'])) {
     if ($_REQUEST['loc'] == 1) {
         header("Location:/pages/wait_ticket.php");
     }
-    
+
 }
 
 function removeFromQueue($q_id) {
@@ -37,14 +37,15 @@ function removeFromQueue($q_id) {
         $errorMsg = $e->getMessage();
         $_SESSION['type'] = "error";
     }
-    
+
     // Delete the user from the waitlist
     Wait_queue::deleteFromWaitQueue($queueItem);
 }
- 
+
 function sendMessage($q_id, $message) {
     $message = $message.date($sv['dateFormat'], strtotime("now")+$sv["wait_period"]);
-    Notifications::sendNotification($q_id, "FabApp Notification", $message, 1);
+    $message=$message.$q_id;   
+    Notifications::sendNotification($q_id, "Notification", $message, 1);
 }
 
 ?>

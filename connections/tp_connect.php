@@ -1,5 +1,5 @@
 <?php
 // Thermal printer connection settings
-$tphost = "129.107.37.13";
+$tphost = "ip address";
 $tpport = 9100;
 ?>

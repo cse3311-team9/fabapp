@@ -35,6 +35,9 @@ body {
 .navbar-right{
     text-align: right!important;
 }
+.navbar-top-links.navbar-right li{
+  display: inline-block;
+}
 .navbar-top-links li {
   display: inline-block;
 }

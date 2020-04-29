@@ -263,9 +263,8 @@ class StorageUnit {
 		$rowspan = $this->span[0] + 1;
 		$width = 50 * $colspan;
 
-		$td_values["id"] = str_replace("__unit__", $this->unit_indicator, $td_values["id"]);
-		$td_values["label"] = $td_values["label"] ? str_replace("__unit__", $this->unit_indicator, $td_values["label"]) : $this->unit_indicator;
-		$td_values["onclick"] = str_replace("__unit__", $this->unit_indicator, $td_values["onclick"]);
+		$td_values["id"] = $td_values["id"] ? $td_values["id"] : $this->unit_indicator;
+		$td_values['label'] = $td_values["label"] ? str_replace("_", $this->unit_indicator, $td_values["label"]) : $this->unit_indicator;
 
 		return "<td id='$td_values[id]' class='$td_values[class]' colspan='$colspan' rowspan='$rowspan' style='width:${width}px;$td_values[style]'
 				onclick='$td_values[onclick]' onmouseover='$td_values[onmouseover]' onmouseout='$td_values[onmouseout]' align='center'>$td_values[label]</td>";
@@ -562,19 +561,15 @@ class StorageDrawer {
 	}
 
 
-	public static function get_a_drawer_and_unit_for_type($type, $drawer=null) {
+	public static function get_a_drawer_and_unit_for_type($type) {
 		global $mysqli;
 
-		if($drawer) $query = 	"SELECT `drawer`, `unit` FROM `storage_box`
-								WHERE `type` = '$type' AND `trans_id` IS NULL
-								AND `drawer` = '$drawer'
-								LIMIT 1;";
-		else $query = "SELECT `drawer`, `unit` FROM `storage_box`
-								WHERE `type` = '$type' AND `trans_id` IS NULL
-								LIMIT 1;";
-
-		if($results = $mysqli->query($query)) 
-		{
+		if($results = $mysqli->query("SELECT `drawer`, `unit`
+										FROM `storage_box`
+										WHERE `type` = '$type'
+										AND `trans_id` IS NULL
+										LIMIT 1;"
+		)) {
 			if($results->num_rows == 1) {
 				$row = $results->fetch_assoc();
 				$drawer = $row['drawer'];
@@ -585,7 +580,7 @@ class StorageDrawer {
 									"onclick" => "alert(\"Incorrect box\");");
 				$empty = array("style" => "background-color:#000000;color:#000000;border:solid black;border-width:2px;");
 				$selected_behavior = array("style" => "background-color:#00FF00;border:solid black;border-width:2px;", 
-									"onclick" => "add_to_location(this, \"$drawer$unit_indicator\")");
+									"onclick" => "storage_selected(this, \"$drawer$unit_indicator\")");
 
 				$select_unit_callback = function($drawer_unit) use ($unit_indicator) {return $drawer_unit->unit_indicator == $unit_indicator;};
 				return new StorageDrawer($drawer, $basic_unit, $empty, $select_unit_callback, $selected_behavior);

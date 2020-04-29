@@ -360,7 +360,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['removeBtn']) && $staff
                                                                     array_push($device_array, array("q".$row["Q_id"], $time_seconds));
 
                                                                        //header("Refresh: 600;");
-                                                                    //send notifiaction if the time is less than 2 minutes
+                                                                    //send notifiaction if the time is less than 3 minutes
                                                                     if ($time_seconds<180) {
                                                                       Notifications::sendLastNotification($row['Operator'], "FabApp Notification","You have less than 3 minutes waiting time left. Please be ready to go to FabLab." , 'From: FabApp Notifications' . "\r\n" .'', 0);
                                                                     }

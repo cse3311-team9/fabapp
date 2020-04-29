@@ -161,7 +161,8 @@ function select_materials_first_ticket($operator, $device, $p_id, $staff) {
 
 	// create new transaction
 	if(!is_int($trans_id = Transactions::insert_new_transaction($operator, $device->device_id, null, $p_id, $status['active'], $staff)))
-		exit_if_error("Can not create a new ticket–$trans_id");
+		exit_if_error("
+–$trans_id");
 
 	// create new mats_used instance for material
 	foreach($materials as $material)

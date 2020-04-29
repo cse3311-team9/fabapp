@@ -23,7 +23,6 @@ CREATE DATABASE IF NOT EXISTS `fabapp` DEFAULT CHARACTER SET utf8 COLLATE utf8_g
 USE `fabapp`;
 
 -- --------------------------------------------------------
-
 --
 -- Table structure for table `accounts`
 --
