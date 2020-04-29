@@ -22,7 +22,8 @@ var messages = {}
     function showMySettings() {
         $("#globalDiv").hide();
         $("#mySettingsDiv").show();
-        $("#btnDrop").show();
+        $("#btnDrop").html("Drop");
+        $("#btnDrop").prop("disabled", false);
         activeTab = 0;
         <?php $settingsIndex = 1 ?>
     }
@@ -30,13 +31,21 @@ var messages = {}
     function showGlobalSettings() {
         $("#mySettingsDiv").hide();
         $("#globalDiv").show();
-        $("#btnDrop").hide();
+        $("#btnDrop").html("Delete");
+        $("#btnDrop").prop("disabled", true);
         activeTab = 1;
         <?php $settingsIndex = 1 ?>
     }
 
     function changeMessage() {
-        $("#messageName").val($("#messageSelector option:selected").html());
+        if ($("#messageSelector").val() == 0) {
+            $("#messageName").val("");
+            $("#btnDrop").prop("disabled", true);
+        }
+        else {
+            $("#btnDrop").prop("disabled", false);
+            $("#messageName").val($("#messageSelector option:selected").html());
+        }
         $("#alertMessage").val(messages[$("#messageSelector").val()]);
     }
 
@@ -186,11 +195,11 @@ var messages = {}
 
                                     if ($sql->execute())
                                     {
-                                        echo '<script>alert("Update Succesful");</script>';
+                                        echo '<script>console.log("Update Succesful");</script>';
                                     }
                                     else
                                     {
-                                        echo '<script>alert("Update failed");</script>';
+                                        echo '<script>console.error("Update failed");</script>';
                                     }
 
                                     break;
@@ -203,8 +212,8 @@ var messages = {}
                                     if ($Id == 0)
                                     {
                                         $sql = $mysqli->prepare("
-                                        INSERT INTO alert_messages (Id, Name, Message)
-                                        VALUES (Id = 0, Name = ?, Message = ?)
+                                        INSERT INTO alert_messages
+                                        SET Name = ?, Message = ?
                                     ");
                                     }
                                     else
@@ -220,11 +229,11 @@ var messages = {}
 
                                     if ($sql->execute())
                                     {
-                                        echo '<script>alert("Update Succesful");</script>';
+                                        echo '<script>console.log("Update Succesful");</script>';
                                     }
                                     else
                                     {
-                                        echo '<script>alert("Update failed");</script>';
+                                        echo '<script>console.error("Update failed");</script>';
                                     }
 
                                     break;
@@ -233,30 +242,42 @@ var messages = {}
                             header("Refresh:0");
                         }
 
-                        if(array_key_exists('btnDrop', $_POST)) { 
-                            $operator = isset($staff->operator) ? $staff->operator : "";
+                        if(array_key_exists('btnDrop', $_POST)) {
+                            switch ($settingsIndex) {
+                                case 0: // Drop for My Settings
+                                    $operator = isset($staff->operator) ? $staff->operator : "";
 
-                            $sql = $mysqli->prepare("
-                                UPDATE wait_queue
-                                SET Op_email = '', Op_phone = '', carrier = ''
-                                WHERE Operator = ?
-                            ");
-                            $sql->bind_param("s", $operator);
-                            $sql->execute();
+                                    $sql = $mysqli->prepare("
+                                        UPDATE wait_queue
+                                        SET Op_email = '', Op_phone = '', carrier = ''
+                                        WHERE Operator = ?
+                                    ");
+                                    $sql->bind_param("s", $operator);
+                                    $sql->execute();
+                                    break;
 
+                                case 1: // Delete for Gloabl Settings
+                                    $Id = $_POST['messageSelector'];
+                                    $result = $mysqli->query("DELETE FROM alert_messages 
+                                                              WHERE Id = $Id");
+
+                                    if ($result)
+                                    {
+                                        echo '<script>console.log("Delete Succesful");</script>';
+                                    }
+                                    else
+                                    {
+                                        echo '<script>console.error("Delete failed");</script>';
+                                    }
+
+                                    break;
+                            }
+                            
                             header("Refresh:0");
                         }
-                        echo "<script>console.log('$staff->operator')</script>";
                     ?>
                     <button type="submit" name="btnSave" class="btnSave btn btn-default">Save</button>
-                    <?php
-                    if ($settingsIndex == 0)
-                    {
-                    ?>
-                        <button id="btnDrop" type="submit" name="btnDrop" class="btnDrop btn btn-default">Drop</button>
-                    <?php
-                    }
-                    ?>
+                    <button id="btnDrop" type="submit" name="btnDrop" class="btnDrop btn btn-default">Drop</button>
                 </div>
             </form>
         </div>
