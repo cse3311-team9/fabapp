@@ -127,6 +127,19 @@ $settingsIndex = 0;
                                 <label for="messageSelector">Select Message to Edit:</label>
                                 <select name="messageSelector" id="messageSelector" class="form-control">
                                     <option value="">--- Select Message ---</option>
+                                    <?php
+                                        if ($result = $mysqli->query("SELECT * FROM alert_messages")) 
+                                        {
+                                            while ( $rows = mysqli_fetch_array ( $result ) ) 
+                                            {
+                                                echo "<option value='" . $rows ['Id'] . "'>" . $rows ['Name'] . "</option>";
+                                            }
+                                        } 
+                                        else 
+                                        {
+                                            die('There was an error loading the device groups.');
+                                        } 
+                                    ?>
                                 </select>
                             </div>
                         </div>
