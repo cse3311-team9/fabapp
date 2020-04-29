@@ -71,20 +71,6 @@ License - FabApp V 0.9
     height: 60px;
 }
 
-.leftHeaderDiv
-{
-    width: 50%;
-    height: 100%;
-    float: left;
-    padding: 13px 0;
-}
-
-.rightHeaderDiv
-{
-    width: 50%;
-    float: right;
-}
-
 .globalDivider
 {
     display: block;

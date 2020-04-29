@@ -12,6 +12,9 @@ $settingsIndex = 0;
 <link href="/vendor/w3/toggle.css" rel="stylesheet" type="text/css">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 <script>
+var activeTab = 0;
+var messages = {}
+
     $("#globalDiv").hide();
     $("#mySettingsDiv").show();
     $("#btnDrop").show();
@@ -20,16 +23,25 @@ $settingsIndex = 0;
         $("#globalDiv").hide();
         $("#mySettingsDiv").show();
         $("#btnDrop").show();
+        activeTab = 0;
+        <?php $settingsIndex = 1 ?>
     }
 
     function showGlobalSettings() {
         $("#mySettingsDiv").hide();
         $("#globalDiv").show();
         $("#btnDrop").hide();
+        activeTab = 1;
+        <?php $settingsIndex = 1 ?>
     }
 
-    function showMessageName() {
-        $("#messageNameDiv").show();
+    function changeMessage() {
+        $("#messageName").val($("#messageSelector option:selected").html());
+        $("#alertMessage").val(messages[$("#messageSelector").val()]);
+    }
+
+    function getActiveTab() {
+        return activeTab;
     }
 </script>
 
@@ -120,19 +132,17 @@ $settingsIndex = 0;
                     </div>
                     <div id="globalDiv" hidden>
                         <div class="globalHeader">
-                            <div class="leftHeaderDiv">
-                                <button id="addMessage" class="btn btn-default" href="#" onclick="showMessageName(); return false;">Add New Message</button>
-                            </div>
-                            <div class="rightHeaderDiv">
+                            <div class="selectorWrapper">
                                 <label for="messageSelector">Select Message to Edit:</label>
-                                <select name="messageSelector" id="messageSelector" class="form-control">
-                                    <option value="">--- Select Message ---</option>
+                                <select name="messageSelector" id="messageSelector" class="form-control" onChange="changeMessage();">
+                                    <option value=0>Add New Message</option>
                                     <?php
                                         if ($result = $mysqli->query("SELECT * FROM alert_messages")) 
                                         {
                                             while ( $rows = mysqli_fetch_array ( $result ) ) 
                                             {
                                                 echo "<option value='" . $rows ['Id'] . "'>" . $rows ['Name'] . "</option>";
+                                                echo "<script>messages[" . $rows['Id'] . "] = '" . $rows['Message']. "'</script>";
                                             }
                                         } 
                                         else 
@@ -145,9 +155,9 @@ $settingsIndex = 0;
                         </div>
                         <div class="globalDivider"></div>
                         <div class="globalBody">
-                            <div id="messageNameDiv" hidden>
+                            <div id="messageNameDiv">
                                 <label for="messageName">Message Name:</label>
-                                <input id="messageName" type="text" class="form-control" />
+                                <input id="messageName" name="messageName" type="text" class="form-control" />
                             </div>
                             <label for="alertMessage">Alert Message:</label>
                             <div>
@@ -159,29 +169,66 @@ $settingsIndex = 0;
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal" style="float: right;">Cancel</button>
                     <?php
-                        if(array_key_exists('btnSave', $_POST)) { 
-                            $email = $_POST['email'];
-                            $phone = $_POST['phone'];
-                            $carrier = $_POST['carrier'];
-                            $operator = isset($staff->operator) ? $staff->operator : "";
+                        if(array_key_exists('btnSave', $_POST)) {
+                            switch ($settingsIndex) {
+                                case 0: // Save My Settings
+                                    $email = $_POST['email'];
+                                    $phone = $_POST['phone'];
+                                    $carrier = $_POST['carrier'];
+                                    $operator = isset($staff->operator) ? $staff->operator : "";
 
-                            $sql = $mysqli->prepare("
-                                UPDATE wait_queue
-                                SET Op_email = ?, Op_phone = ?, carrier = ?
-                                WHERE Operator = ?
-                            ");
-                            $sql->bind_param("ssss", $email, $phone, $carrier, $operator);
+                                    $sql = $mysqli->prepare("
+                                        UPDATE wait_queue
+                                        SET Op_email = ?, Op_phone = ?, carrier = ?
+                                        WHERE Operator = ?
+                                    ");
+                                    $sql->bind_param("ssss", $email, $phone, $carrier, $operator);
 
-                            if ($sql->execute())
-                            {
-                                echo '<script>alert("Update Succesful");</script>';
+                                    if ($sql->execute())
+                                    {
+                                        echo '<script>alert("Update Succesful");</script>';
+                                    }
+                                    else
+                                    {
+                                        echo '<script>alert("Update failed");</script>';
+                                    }
+
+                                    break;
+
+                                case 1: // Save Gloabl Settings
+                                    $message = $_POST['alertMessage'];
+                                    $name = $_POST['messageName'];
+                                    $Id = $_POST['messageSelector'];
+
+                                    if ($Id == 0)
+                                    {
+                                        $sql = $mysqli->prepare("
+                                        INSERT INTO alert_messages (Id, Name, Message)
+                                        VALUES (Id = 0, Name = ?, Message = ?)
+                                    ");
+                                    }
+                                    else
+                                    {
+                                        $sql = $mysqli->prepare("
+                                            UPDATE alert_messages
+                                            SET Name = ?, Message = ?
+                                            WHERE Id = $Id
+                                        ");
+                                    }
+                                    
+                                    $sql->bind_param("ss", $name, $message);
+
+                                    if ($sql->execute())
+                                    {
+                                        echo '<script>alert("Update Succesful");</script>';
+                                    }
+                                    else
+                                    {
+                                        echo '<script>alert("Update failed");</script>';
+                                    }
+
+                                    break;
                             }
-                            else
-                            {
-                                echo '<script>alert("Update failed");</script>';
-                            }
-
-                            // Update alert message
 
                             header("Refresh:0");
                         }
