@@ -57,4 +57,41 @@ License - FabApp V 0.9
 .bigTextBox
 {
     width: 100%;
+    margin: 0;
+}
+
+#addMessage
+{
+    background-color: #337ab7;
+    color: white
+}
+
+.globalHeader
+{
+    height: 60px;
+}
+
+.leftHeaderDiv
+{
+    width: 50%;
+    height: 100%;
+    float: left;
+    padding: 13px 0;
+}
+
+.rightHeaderDiv
+{
+    width: 50%;
+    float: right;
+}
+
+.globalDivider
+{
+    display: block;
+    height: 20px;
+}
+
+#messageNameDiv
+{
+    margin-bottom: 10px;
 }

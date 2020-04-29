@@ -27,6 +27,10 @@ $settingsIndex = 0;
         $("#globalDiv").show();
         $("#btnDrop").hide();
     }
+
+    function showMessageName() {
+        $("#messageNameDiv").show();
+    }
 </script>
 
 <div id="settingsModal" class="modal fade" role="dialog">
@@ -115,9 +119,27 @@ $settingsIndex = 0;
                         </div>
                     </div>
                     <div id="globalDiv" hidden>
-                        <label for="alertMessage">Alert Message:</label>
-                        <div>
-                            <textarea name="alertMessage" id="alertMessage" class="bigTextBox" rows="10"></textarea>
+                        <div class="globalHeader">
+                            <div class="leftHeaderDiv">
+                                <button id="addMessage" class="btn btn-default" href="#" onclick="showMessageName(); return false;">Add New Message</button>
+                            </div>
+                            <div class="rightHeaderDiv">
+                                <label for="messageSelector">Select Message to Edit:</label>
+                                <select name="messageSelector" id="messageSelector" class="form-control">
+                                    <option value="">--- Select Message ---</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="globalDivider"></div>
+                        <div class="globalBody">
+                            <div id="messageNameDiv" hidden>
+                                <label for="messageName">Message Name:</label>
+                                <input id="messageName" type="text" class="form-control" />
+                            </div>
+                            <label for="alertMessage">Alert Message:</label>
+                            <div>
+                                <textarea name="alertMessage" id="alertMessage" class="bigTextBox form-control" rows="10"></textarea>
+                            </div>
                         </div>
                     </div>
                 </div>
