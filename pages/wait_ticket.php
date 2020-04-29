@@ -32,12 +32,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['removeBtn']) && $staff
     $operator1 = filter_input(INPUT_POST, 'operator1');
     $em1 = filter_input(INPUT_POST,'op-email');
     $ph1 = filter_input(INPUT_POST, 'op-phone');
-    
+
     if(isset($_POST['devices']) && isset($_POST['dg_id'])){
         $d_id1 = filter_input(INPUT_POST,'devices');
         $dg_id1 = filter_input(INPUT_POST,'dg_id');
         $wait_status = Wait_queue::hasDGWait($operator1 , $dg_id1);
-        
+
         if ($wait_status)
         {
             $wt_msg = ("<div style='text-align: center'>
@@ -55,7 +55,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['removeBtn']) && $staff
                 <div class='alert alert-danger'>
                     You Must Enter a Phone Number If Selecting a Carrier
                 </div> </div>");
-                
+
             } else {
                 $carrier_name1 = filter_input(INPUT_POST,'carrier_name');
                 $wait_id1 = Wait_queue::insertWaitQueue($operator1, $d_id1, $dg_id1, $ph1, $carrier_name1, $em1);
@@ -79,7 +79,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['removeBtn']) && $staff
 ?>
 <title><?php echo $sv['site_name'];?> Wait Queue System</title>
 <div id="page-wrapper">
-    
+
     <!-- Page Title -->
     <div class="row">
         <div class="col-lg-12">
@@ -88,7 +88,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['removeBtn']) && $staff
         <!-- /.col-lg-12 -->
     </div>
     <!-- /.row -->
-    
+
     <!-- Ticket Creation -->
     <div class="row">
         <div class="col-md-8">
@@ -120,7 +120,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['removeBtn']) && $staff
                                 &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
                                 <select name="devices" id="devices" tabindex="1">
                                     <option value =""> Select Group First</option>
-                                </select>   
+                                </select>
                             </td>
                         </tr>
                         <tr>
@@ -146,7 +146,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['removeBtn']) && $staff
                                         <?php // Load all of the device groups that are being waited for - signified with a 'DG' in front of the value attribute
                                             if ($result = $mysqli->query("
                                                     SELECT `provider`
-                                                    FROM `carrier` 
+                                                    FROM `carrier`
                                                     WHERE 1;
                                             ")) {
                                                 while ( $rows = mysqli_fetch_array ( $result ) ) {
@@ -155,7 +155,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['removeBtn']) && $staff
                                                 }
                                             } else {
                                                 die ("There was an error loading the phone carriers.");
-                                            } ?> 
+                                            } ?>
                                     </select>
                                 </div>
                             </td>
@@ -170,7 +170,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['removeBtn']) && $staff
                 </div>
                 <!-- /.panel-body -->
                 <div class="panel-footer clearfix">
-                    <div class="pull-right"><input class="btn" type="submit" name="submitBtn" id="submitBtn" value="Submit" disabled></div>
+                    <div class="pull-right"><input class="btn" type="submit" name="submitBtn" id="submitBtn" value="Submit"></div>
                 </div>
                 </form>
             </div>
@@ -186,7 +186,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['removeBtn']) && $staff
                     <div class="panel-body">
                         <?php $m = floor($sv['wait_period']/60);
                         $s = $sv['wait_period'] % 60;
-                            echo "$m minutes"; 
+                            echo "$m minutes";
                             if ($s != 0) echo " & $s seconds";?>
                     </div>
             </div>
@@ -207,7 +207,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['removeBtn']) && $staff
                                             <?php // Load all of the device groups that are being waited for - signified with a 'DG' in front of the value attribute
                                                 if ($result = $mysqli->query("
                                                         SELECT DISTINCT D.`device_desc`, D.`dg_id`, D.`d_id`
-                                                        FROM `devices` D 
+                                                        FROM `devices` D
                                                         JOIN `wait_queue` WQ on D.`dg_id` = WQ.`Devgr_id`
                                                         LEFT JOIN (SELECT trans_id, t_start, t_end, d_id, operator, status_id FROM transactions WHERE status_id < $status[total_fail]  ORDER BY trans_id DESC) as t
                                                         ON D.`d_id` = t.`d_id`
@@ -223,7 +223,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['removeBtn']) && $staff
                                                     }
                                                 } else {
                                                     die ("There was an error loading the device groups.");
-                                                } ?> 
+                                                } ?>
                                         </select>
                                     </td>
                                 </tr>
@@ -244,7 +244,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['removeBtn']) && $staff
         <!-- /.col-md-4 -->
     </div>
     <!-- /.row -->
-    
+
     <!-- Wait Queue -->
     <div class="row">
     <?php if (Wait_queue::hasWait()) { ?>
@@ -264,12 +264,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['removeBtn']) && $staff
                                     <li class="<?php if ($count == 0) echo "active";?>">
                                         <a <?php echo("href=\"#".$row["dg_id"]."\""); ?>  data-toggle="tab" aria-expanded="false"> <?php echo($row["dg_desc"]); ?> </a>
                                     </li>
-                                <?php 
+                                <?php
                                 if ($count == 0){
                                     //create a way to display the first wait_queue table tab by saving which dg_id it is to variable 'first_dgid'
-                                    $first_dgid = $row["dg_id"];  
-                                }   
-                                $count++;                                                                  
+                                    $first_dgid = $row["dg_id"];
+                                }
+                                $count++;
                                 }
                             } ?>
                         </ul>
@@ -278,13 +278,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['removeBtn']) && $staff
                             if ($Tabresult = Wait_queue::getTabResult()) {
                                 while($tab = $Tabresult->fetch_assoc()){
                                     $number_of_queue_tables++;
-                                    
+
                                     // Calculate the wait queue timer by granular wait of a device group
                                     if ($tab["granular_wait"] == 'Y'){
-                                        Wait_queue::calculateDeviceWaitTimes(); 
+                                        Wait_queue::calculateDeviceWaitTimes();
                                     } else {
                                         Wait_queue::calculateWaitTimes();
-                                    } 
+                                    }
 
                                     // Give all of the dynamic tables a name so they can be called when their tab is clicked ?>
                                     <div class="tab-pane fade <?php if ($first_dgid == $tab["dg_id"]) echo "in active";?>" <?php echo("id=\"".$tab["dg_id"]."\"") ?> >
@@ -296,7 +296,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['removeBtn']) && $staff
                                                     <?php if ($tab["dg_id"]==2) { ?> <th><i class="far fa-flag"></i> Device Group</th><?php } ?>
                                                     <?php if ($tab["dg_id"]!=2) { ?> <th><i class="far fa-flag"></i> Device</th><?php } ?>
                                                     <th><i class="far fa-clock"></i> Time Left</th>
-                                                    <?php if ($staff && ($staff->getRoleID() >= $sv['LvlOfStaff'])) { ?> 
+                                                    <?php if ($staff && ($staff->getRoleID() >= $sv['LvlOfStaff'])) { ?>
                                                     <th><i class="far fa-flag"></i> Alerts</th>
                                                     <th><i class="fa fa-times"></i> Remove</th>
                                                     <?php } ?>
@@ -317,7 +317,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['removeBtn']) && $staff
                                                             <!-- Wait Queue Number -->
                                                             <td align="center"><?php echo($row['Q_id']) ?></td>
 
-                                                            <!-- Operator ID --> 
+                                                            <!-- Operator ID -->
                                                             <td>
                                                                 <?php $user = Users::withID($row['Operator']);?>
                                                                 <a class="<?php echo $user->getIcon()?> fa-lg" title="<?php echo($row['Operator']) ?>"  href="/pages/waitUserInfo.php?q_id=<?php echo $row["Q_id"]?>&loc=1"></a>
@@ -341,8 +341,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['removeBtn']) && $staff
                                                                 sscanf($str_time, "%d:%d:%d", $hours, $minutes, $seconds);
                                                                 $time_seconds = $hours * 3600 + $minutes * 60 + $seconds + $sv["wait_period"];
                                                                 $temp_time = $hours * 3600 + $minutes * 60 + $seconds;
+
+
                                                                 if (isset($row['last_contact'])){
                                                                     $time_seconds = $sv["wait_period"] - (time() - strtotime($row['last_contact']) );
+
                                                                     if ($time_seconds <= 0 ){
                                                                         echo("<span style=\"color:red\" align=\"center\" id=\"q$row[Q_id]\">"."  $row[estTime]  </span>" );
                                                                     } else {
@@ -355,19 +358,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['removeBtn']) && $staff
                                                                 } else {
                                                                     echo("<span align=\"center\" id=\"q$row[Q_id]\">"."  $row[estTime]  </span>" );
                                                                     array_push($device_array, array("q".$row["Q_id"], $time_seconds));
+
+                                                                       //header("Refresh: 600;");
+                                                                    //send notifiaction if the time is less than 2 minutes
+                                                                    if ($time_seconds<180) {
+                                                                      Notifications::sendLastNotification($row['Operator'], "FabApp Notification","You have less than 3 minutes waiting time left. Please be ready to go to FabLab." , 'From: FabApp Notifications' . "\r\n" .'', 0);
+                                                                    }
                                                                 }
                                                             } ?>
 
                                                             <!-- Last Contact Time -->
-                                                            <?php if (isset($row['last_contact'])) { ?> 
+                                                            <?php if (isset($row['last_contact'])) { ?>
                                                                 <i class="far fa-bell" align="center" title="Last Alerted @ <?php echo(date($sv['dateFormat'], strtotime($row['last_contact']))) ?>"></i> <?php
                                                             } ?>
                                                             </td>
 
                                                             <!-- Send an Alert -->
-                                                            
-                                                            <td> 
-                                                                <?php if (!empty($row['Op_phone']) || !empty($row['Op_email'])) { ?> 
+
+                                                            <td>
+                                                                <?php if (!empty($row['Op_phone']) || !empty($row['Op_email'])) { ?>
                                                                     <div style="text-align: center">
                                                                         <?php //prepare message
                                                                         if ( $row['device_desc'] == ""){
@@ -378,7 +387,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['removeBtn']) && $staff
                                                                             $msg = "$row[device_desc] is now available. Please make your way to the FabLab. You have until ";
                                                                         }
                                                                         ?>
-                                                                        <button class="<?php if (isset($row['last_contact'])){echo "btn btn-xs btn-warning";} else{echo "btn btn-xs btn-primary";}?>" data-target="#removeModal" data-toggle="modal" 
+                                                                        <button class="<?php if (isset($row['last_contact'])){echo "btn btn-xs btn-warning";} else{echo "btn btn-xs btn-primary";}?>" data-target="#removeModal" data-toggle="modal"
                                                                                 onclick="sendManualMessage(<?php echo $row["Q_id"]?>, '<?php echo $msg;?>', 1)">
                                                                             <!-- make note that adding explanation points may cause errors with notifications -->
                                                                                 Send Alert
@@ -388,9 +397,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['removeBtn']) && $staff
                                                             </td>
 
                                                             <!-- Remove From Wait Queue -->
-                                                            <td> 
+                                                            <td>
                                                                 <div style="text-align: center">
-                                                                    <button class="<?php if (isset($row['last_contact']) && $time_seconds <= 0){echo "btn btn-xs btn-danger";} else{echo "btn btn-xs";}?>" data-target="#removeModal" data-toggle="modal" 
+                                                                    <button class="<?php if (isset($row['last_contact']) && $time_seconds <= 0){echo "btn btn-xs btn-danger";} else{echo "btn btn-xs";}?>" data-target="#removeModal" data-toggle="modal"
                                                                             onclick="removeFromWaitlist(<?php echo $row["Q_id"].", ".$row["Operator"].", undefined"?>)">
                                                                             Remove
                                                                     </button>
@@ -434,7 +443,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['removeBtn']) && $staff
         <?php } ?>
     <?php } ?>
     </div>
-    <!-- /.row -->    
+    <!-- /.row -->
 </div>
 <!-- /#page-wrapper -->
 
@@ -448,9 +457,9 @@ include_once ($_SERVER['DOCUMENT_ROOT'].'/pages/footer.php');
     var time = <?php echo $da[1];?>;
     var display = document.getElementById('<?php echo $da[0];?>');
     startTimer(time, display);
-    
-<?php } ?>    
-    
+
+<?php } ?>
+
     function change_dg(){
         if (window.XMLHttpRequest) {
             // code for IE7+, Firefox, Chrome, Opera, Safari
@@ -464,12 +473,12 @@ include_once ($_SERVER['DOCUMENT_ROOT'].'/pages/footer.php');
                 document.getElementById("devices").innerHTML = this.responseText;
             }
         };
-        
+
         xmlhttp.open("GET","/pages/sub/wq_getDevices.php?val="+ document.getElementById("dg_id").value, true);
         xmlhttp.send();
         inUseCheck();
     }
-    
+
     function change_group(){
         if (window.XMLHttpRequest) {
             // code for IE7+, Firefox, Chrome, Opera, Safari
@@ -483,25 +492,25 @@ include_once ($_SERVER['DOCUMENT_ROOT'].'/pages/footer.php');
                 document.getElementById("processOperator").innerHTML = this.responseText;
             }
         };
-        
+
         xmlhttp.open("GET","/pages/sub/getWaitQueueID.php?val="+ document.getElementById("devGrp").value, true);
         xmlhttp.send();
     }
-    
+
     function listCarriers(){
         $("#popModal").modal();
         document.getElementById("modal-title").innerHTML = "Supported Carriers";
         document.getElementById("modal-body").innerHTML = "<?php echo Notifications::listCarriers(); ?>";
     }
-    
+
     function removeFromWaitlist(q_id){
-        
-        if (confirm("You are about to delete a user from the wait queue. Click OK to continue or CANCEL to quit.")){  
-        
+
+        if (confirm("You are about to delete a user from the wait queue. Click OK to continue or CANCEL to quit.")){
+
         window.location.href = "/pages/sub/endWaitList.php?q_id=" + q_id + "&loc=1";
         }
      }
-    
+
     function removeAllUsers(){
 
         if (confirm("You are about to delete ALL wait queue users. Click OK to continue or CANCEL to quit.")){
@@ -509,7 +518,7 @@ include_once ($_SERVER['DOCUMENT_ROOT'].'/pages/footer.php');
         }
         return false;
     }
-    
+
     <?php if ($staff->getRoleID() < $sv['clear_queue']){ ?>
         function removeAllUsers(){
 
@@ -519,13 +528,13 @@ include_once ($_SERVER['DOCUMENT_ROOT'].'/pages/footer.php');
             return false;
         }
     <?php } ?>
-    
+
     function inUseCheck(){
         var operator = document.getElementById("operator1").value;
         var dg_id = document.getElementById("dg_id").value;
         var sBtn = document.getElementById("submitBtn");
         var trV = document.getElementById("tr_verify");
-        
+
         if (operator.length == 10 && dg_id){
             if (window.XMLHttpRequest) {
                 // code for IE7+, Firefox, Chrome, Opera, Safari
@@ -545,7 +554,7 @@ include_once ($_SERVER['DOCUMENT_ROOT'].'/pages/footer.php');
                         trV.hidden  = true;
                     } else {
                         console.log("Invalid Search Criteria");
-                        sBtn.disabled = true;
+                        //sBtn.disabled = true;
                         sBtn.classList.remove("btn-primary");
                     }
                 }
@@ -555,7 +564,7 @@ include_once ($_SERVER['DOCUMENT_ROOT'].'/pages/footer.php');
             xmlhttp.send();
         }
     }
-    
+
     function warnedCB(){
         var sBtn = document.getElementById("submitBtn");
         var warnCB = document.getElementById("warnCB");
@@ -567,7 +576,7 @@ include_once ($_SERVER['DOCUMENT_ROOT'].'/pages/footer.php');
             sBtn.classList.remove("btn-primary");
         }
     }
-    
+
     var str;
     for(var i=1; i<= <?php echo $number_of_queue_tables;?>; i++){
         str = "#waitTable_"+i
@@ -576,5 +585,5 @@ include_once ($_SERVER['DOCUMENT_ROOT'].'/pages/footer.php');
                     "order": []
                     });
     }
-    
+
 </script>
