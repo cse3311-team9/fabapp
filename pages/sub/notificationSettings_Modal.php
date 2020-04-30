@@ -24,8 +24,9 @@ var messages = {}
         $("#mySettingsDiv").show();
         $("#btnDrop").html("Drop");
         $("#btnDrop").prop("disabled", false);
+        $("#btnDrop").prop("title", "Remove your information from the database");
         activeTab = 0;
-        <?php $settingsIndex = 1 ?>
+        <?php $settingsIndex = 0 ?>
     }
 
     function showGlobalSettings() {
@@ -33,6 +34,7 @@ var messages = {}
         $("#globalDiv").show();
         $("#btnDrop").html("Delete");
         $("#btnDrop").prop("disabled", true);
+        $("#btnDrop").prop("title", "Delete the current alert message");
         activeTab = 1;
         <?php $settingsIndex = 1 ?>
     }
@@ -41,12 +43,13 @@ var messages = {}
         if ($("#messageSelector").val() == 0) {
             $("#messageName").val("");
             $("#btnDrop").prop("disabled", true);
+            $("#alertMessage").val("");
         }
         else {
             $("#btnDrop").prop("disabled", false);
             $("#messageName").val($("#messageSelector option:selected").html());
+            $("#alertMessage").val(messages[$("#messageSelector").val()]);
         }
-        $("#alertMessage").val(messages[$("#messageSelector").val()]);
     }
 
     function getActiveTab() {
@@ -57,7 +60,7 @@ var messages = {}
 <div id="settingsModal" class="modal fade" role="dialog">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header" style="border-bottom: none;">
+            <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
                 <h4 class="modal-title">Notification Settings</h4>
             </div>
@@ -212,20 +215,22 @@ var messages = {}
                                     if ($Id == 0)
                                     {
                                         $sql = $mysqli->prepare("
-                                        INSERT INTO alert_messages
-                                        SET Name = ?, Message = ?
-                                    ");
+                                            INSERT INTO alert_messages
+                                            SET Name = ?, Message = ?
+                                        ");
+                                        
+                                        $sql->bind_param("ss", $name, $message);
                                     }
                                     else
                                     {
                                         $sql = $mysqli->prepare("
                                             UPDATE alert_messages
                                             SET Name = ?, Message = ?
-                                            WHERE Id = $Id
+                                            WHERE Id = ?
                                         ");
+
+                                        $sql->bind_param("ssi", $name, $message, $Id);
                                     }
-                                    
-                                    $sql->bind_param("ss", $name, $message);
 
                                     if ($sql->execute())
                                     {
@@ -252,16 +257,28 @@ var messages = {}
                                         SET Op_email = '', Op_phone = '', carrier = ''
                                         WHERE Operator = ?
                                     ");
-                                    $sql->bind_param("s", $operator);
-                                    $sql->execute();
+                                    $sql->bind_param("i", $operator);
+
+                                    if ($sql->execute())
+                                    {
+                                        echo '<script>console.log("Drop Succesful");</script>';
+                                    }
+                                    else
+                                    {
+                                        echo '<script>console.error("Drop failed");</script>';
+                                    }
+
                                     break;
 
                                 case 1: // Delete for Gloabl Settings
                                     $Id = $_POST['messageSelector'];
-                                    $result = $mysqli->query("DELETE FROM alert_messages 
-                                                              WHERE Id = $Id");
 
-                                    if ($result)
+                                    $sql = $mysqli->prepare("DELETE FROM alert_messages 
+                                                             WHERE Id = ?");
+
+                                    $sql->bind_param("i", $Id);
+
+                                    if ($sql->execute())
                                     {
                                         echo '<script>console.log("Delete Succesful");</script>';
                                     }
@@ -277,7 +294,7 @@ var messages = {}
                         }
                     ?>
                     <button type="submit" name="btnSave" class="btnSave btn btn-default">Save</button>
-                    <button id="btnDrop" type="submit" name="btnDrop" class="btnDrop btn btn-default">Drop</button>
+                    <button id="btnDrop" type="submit" name="btnDrop" class="btnDrop btn btn-default" title="Remove your information from the database">Drop</button>
                 </div>
             </form>
         </div>

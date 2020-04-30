@@ -54,6 +54,11 @@ License - FabApp V 0.9
     background-color: red;
 }
 
+.modalHeader
+{
+    border-bottom: none;
+}
+
 .bigTextBox
 {
     width: 100%;
