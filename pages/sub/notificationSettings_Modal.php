@@ -12,9 +12,7 @@ $settingsIndex = 0;
 <link href="/vendor/w3/toggle.css" rel="stylesheet" type="text/css">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 <script>
-var activeTab = 0;
 var messages = {}
-
     $("#globalDiv").hide();
     $("#mySettingsDiv").show();
     $("#btnDrop").show();
@@ -25,8 +23,7 @@ var messages = {}
         $("#btnDrop").html("Drop");
         $("#btnDrop").prop("disabled", false);
         $("#btnDrop").prop("title", "Remove your information from the database");
-        activeTab = 0;
-        <?php $settingsIndex = 0 ?>
+        $("#settingsIndex").val('0');
     }
 
     function showGlobalSettings() {
@@ -35,8 +32,7 @@ var messages = {}
         $("#btnDrop").html("Delete");
         $("#btnDrop").prop("disabled", true);
         $("#btnDrop").prop("title", "Delete the current alert message");
-        activeTab = 1;
-        <?php $settingsIndex = 1 ?>
+        $("#settingsIndex").val('1');
     }
 
     function changeMessage() {
@@ -50,10 +46,6 @@ var messages = {}
             $("#messageName").val($("#messageSelector option:selected").html());
             $("#alertMessage").val(messages[$("#messageSelector").val()]);
         }
-    }
-
-    function getActiveTab() {
-        return activeTab;
     }
 </script>
 
@@ -179,16 +171,19 @@ var messages = {}
                     </div>
                 </div>
                 <div class="modal-footer">
+                    <input id="settingsIndex" name="settingsIndex" type="text" value="0" hidden/>
                     <button type="button" class="btn btn-default" data-dismiss="modal" style="float: right;">Cancel</button>
                     <?php
                         if(array_key_exists('btnSave', $_POST)) {
+                            $settingsIndex = $_POST['settingsIndex'];
+                            
                             switch ($settingsIndex) {
-                                case 0: // Save My Settings
+                                case '0': // Save My Settings
                                     $email = $_POST['email'];
                                     $phone = $_POST['phone'];
                                     $carrier = $_POST['carrier'];
                                     $operator = isset($staff->operator) ? $staff->operator : "";
-
+                                    
                                     $sql = $mysqli->prepare("
                                         UPDATE wait_queue
                                         SET Op_email = ?, Op_phone = ?, carrier = ?
@@ -202,12 +197,12 @@ var messages = {}
                                     }
                                     else
                                     {
-                                        echo '<script>console.error("Update failed");</script>';
+                                        echo '<script>console.error("Update Failed");</script>';
                                     }
 
                                     break;
 
-                                case 1: // Save Gloabl Settings
+                                case '1': // Save Gloabl Settings
                                     $message = $_POST['alertMessage'];
                                     $name = $_POST['messageName'];
                                     $Id = $_POST['messageSelector'];
@@ -234,11 +229,11 @@ var messages = {}
 
                                     if ($sql->execute())
                                     {
-                                        echo '<script>console.log("Update Succesful");</script>';
+                                        echo '<script>console.log("Update Global Succesful");</script>';
                                     }
                                     else
                                     {
-                                        echo '<script>console.error("Update failed");</script>';
+                                        echo '<script>console.error("Update Global Failed");</script>';
                                     }
 
                                     break;
@@ -248,8 +243,10 @@ var messages = {}
                         }
 
                         if(array_key_exists('btnDrop', $_POST)) {
+                            $settingsIndex = $_POST['settingsIndex'];
+
                             switch ($settingsIndex) {
-                                case 0: // Drop for My Settings
+                                case '0': // Drop for My Settings
                                     $operator = isset($staff->operator) ? $staff->operator : "";
 
                                     $sql = $mysqli->prepare("
@@ -270,7 +267,7 @@ var messages = {}
 
                                     break;
 
-                                case 1: // Delete for Gloabl Settings
+                                case '1': // Delete for Gloabl Settings
                                     $Id = $_POST['messageSelector'];
 
                                     $sql = $mysqli->prepare("DELETE FROM alert_messages 
