@@ -11,42 +11,59 @@
 <link href="/vendor/w3/toggle.css" rel="stylesheet" type="text/css">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 <script>
-var messages = {}
-    $("#globalDiv").hide();
-    $("#mySettingsDiv").show();
-    $("#btnDrop").show();
+    var messages = []
+    
+    // Hide
+    $("#globalDiv").hide()
+
+    // Show
+    $("#mySettingsDiv").show()
+    $("#btnDrop").show()
 
     function showMySettings() {
-        $("#globalDiv").hide();
-        $("#mySettingsDiv").show();
-        $("#btnDrop").html("Drop");
-        $("#btnDrop").prop("disabled", false);
-        $("#btnDrop").prop("title", "Remove your information from the database");
-        $("#settingsIndex").val('0');
+        // Hide
+        $("#globalDiv").hide()
+
+        // Show
+        $("#mySettingsDiv").show()
+
+        // Change
+        $("#btnDrop").html("Drop")
+        $("#btnDrop").prop("disabled", false)
+        $("#btnDrop").prop("title", "Remove your information from the database")
+        $("#settingsIndex").val('0')
     }
 
-    function showGlobalSettings() {
-        $("#mySettingsDiv").hide();
-        $("#globalDiv").show();
-        $("#btnDrop").html("Delete");
-        $("#btnDrop").prop("title", "Delete the current alert message");
-        $("#settingsIndex").val('1');
+    function showGlobalMessageSettings() {
+        // Hide
+        $("#mySettingsDiv").hide()
 
+        // Show
+        $("#globalDiv").show()
+
+        // Change
+        $("#btnDrop").html("Delete")
+        $("#btnDrop").prop("title", "Delete the current alert message")
+        $("#settingsIndex").val('1')
+        
         if ($("#messageSelector").val() == 0) {
-            $("#btnDrop").prop("disabled", true);
+            $("#btnDrop").prop("disabled", true)
         }
     }
 
     function changeMessage() {
         if ($("#messageSelector").val() == 0) {
-            $("#messageName").val("");
-            $("#btnDrop").prop("disabled", true);
-            $("#alertMessage").val("");
+            $("#messageName").val("")
+            $("#btnDrop").prop("disabled", true)
+            $("#alertMessage").val("")
+            $("#eventSelector").val("")
         }
         else {
-            $("#btnDrop").prop("disabled", false);
-            $("#messageName").val($("#messageSelector option:selected").html());
-            $("#alertMessage").val(messages[$("#messageSelector").val()]);
+            $("#btnDrop").prop("disabled", false)
+            $("#messageName").val($("#messageSelector option:selected").html())
+            console.log(messages)
+            $("#alertMessage").val(messages.find(x => x.Id == $("#messageSelector").val()).Message)
+            $("#eventSelector").val(messages.find(x => x.Id == $("#messageSelector").val()).EventId)
         }
     }
 </script>
@@ -65,7 +82,7 @@ var messages = {}
                     if($staff->getRoleID() == $sv['LvlOfStaff']) {
             ?>
                 <button name="mySettings" class="menuTab btn btn-default" href="#" onclick="showMySettings(); return false;">My Settings</button>
-                <button name="globalSettings" class="menuTab btn btn-default" href="#" onclick="showGlobalSettings(); return false;">Global Message Settings</button>
+                <button name="globalMessageSettings" class="menuTab btn btn-default" href="#" onclick="showGlobalMessageSettings(); return false;">Global Message Settings</button>
             <?php
                     }
                     else
@@ -137,11 +154,11 @@ var messages = {}
                             <label class="custom-control-label" for="muteNotifications">Mute Notifications</label>
                         </div>
                     </div>
-                    <!-- Global Settings -->
+                    <!-- Global Message Settings -->
                     <div id="globalDiv" hidden>
-                        <div class="globalHeader">
-                            <div class="selectorWrapper">
-                                <label for="messageSelector">Select Message to Edit:</label>
+                        <div class="globalBody">
+                            <div class="rowDiv">
+                                <label for="messageSelector">Select message to edit:</label>
                                 <select name="messageSelector" id="messageSelector" class="form-control" onChange="changeMessage();">
                                     <option value=0>Add New Message</option>
                                     <?php
@@ -149,8 +166,15 @@ var messages = {}
                                         {
                                             while ( $rows = mysqli_fetch_array ( $result ) ) 
                                             {
+                                                $eventId = ($rows['EventId'] == null) ? '0' : $rows['EventId'];
                                                 echo "<option value='" . $rows ['Id'] . "'>" . $rows ['Name'] . "</option>";
-                                                echo "<script>messages[" . $rows['Id'] . "] = '" . $rows['Message']. "'</script>";
+                                                echo "<script>
+                                                    messages.push({
+                                                        Id: " . $rows ['Id'] . ",
+                                                        Message: '" . $rows['Message'] . "',
+                                                        EventId: $eventId
+                                                    })
+                                                </script>";
                                             }
                                         } 
                                         else 
@@ -160,15 +184,22 @@ var messages = {}
                                     ?>
                                 </select>
                             </div>
-                        </div>
-                        <div class="globalDivider"></div>
-                        <div class="globalBody">
-                            <div id="messageNameDiv">
-                                <label for="messageName">Message Name:</label>
+                            <div class="rowDiv">
+                                <label for="eventSelector">Attach to event:</label>
+                                <select name="eventSelector" id="eventSelector" class="form-control">
+                                    <option value="0">None</option>
+                                    <option value="1">Alert #1 - Welcome to wait queue</option>
+                                    <option value="2">Alert #2 - 15 mins remaining</option>
+                                    <option value="3">Alert #3 - Ticket complete</option>
+                                    <option value="4">Alert #4 - Pay your balance reminder</option>
+                                </select>
+                            </div>
+                            <div id="messageNameDiv" class="rowDiv">
+                                <label for="messageName" class="required">Message Name: </label>
                                 <input id="messageName" name="messageName" type="text" class="form-control" />
                             </div>
-                            <label for="alertMessage">Alert Message:</label>
-                            <div>
+                            <label for="alertMessage" class="required">Alert Message: </label>
+                            <div class="rowDiv">
                                 <textarea name="alertMessage" id="alertMessage" class="bigTextBox form-control" rows="10"></textarea>
                             </div>
                         </div>
@@ -210,25 +241,57 @@ var messages = {}
                                     $message = $_POST['alertMessage'];
                                     $name = $_POST['messageName'];
                                     $Id = $_POST['messageSelector'];
+                                    $eventId = (int) $_POST['eventSelector'];
 
+                                    if ($message == "" || $name == "")
+                                    {
+                                        echo '<script>alert("Please fill out required fields!\nSave unsuccessful.")</script>';
+                                        continue;
+                                    }
+                                    
                                     if ($Id == 0)
                                     {
-                                        $sql = $mysqli->prepare("
-                                            INSERT INTO alert_messages
-                                            SET Name = ?, Message = ?
-                                        ");
-                                        
-                                        $sql->bind_param("ss", $name, $message);
+                                        if ($eventId == 0)
+                                        {
+                                            $sql = $mysqli->prepare("
+                                                INSERT INTO alert_messages
+                                                SET Name = ?, Message = ?
+                                            ");
+                                            
+                                            $sql->bind_param("ss", $name, $message);
+                                        }
+                                        else
+                                        {
+                                            $sql = $mysqli->prepare("
+                                                INSERT INTO alert_messages
+                                                SET Name = ?, Message = ?, EventId = ?
+                                            ");
+                                            
+                                            $sql->bind_param("ssi", $name, $message, $eventId);
+                                        }
                                     }
                                     else
                                     {
-                                        $sql = $mysqli->prepare("
-                                            UPDATE alert_messages
-                                            SET Name = ?, Message = ?
-                                            WHERE Id = ?
-                                        ");
+                                        if ($eventId == 0)
+                                        {
+                                            $sql = $mysqli->prepare("
+                                                UPDATE alert_messages
+                                                SET Name = ?, Message = ?, EventId = NULL
+                                                WHERE Id = ?
+                                            ");
 
-                                        $sql->bind_param("ssi", $name, $message, $Id);
+                                            $sql->bind_param("ssi", $name, $message, $Id);
+                                        }
+                                        else
+                                        {
+                                            $sql = $mysqli->prepare("
+                                                UPDATE alert_messages
+                                                SET Name = ?, Message = ?, EventId = ?
+                                                WHERE Id = ?
+                                            ");
+
+                                            $sql->bind_param("ssii", $name, $message, $eventId, $Id);
+                                        }
                                     }
 
                                     if ($sql->execute())
