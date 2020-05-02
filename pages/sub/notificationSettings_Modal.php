@@ -7,7 +7,6 @@
 *	 settings for the currently logged in user.
 *
 **************************************************/
-$settingsIndex = 0;
 ?>
 <link href="/vendor/w3/toggle.css" rel="stylesheet" type="text/css">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
@@ -30,9 +29,12 @@ var messages = {}
         $("#mySettingsDiv").hide();
         $("#globalDiv").show();
         $("#btnDrop").html("Delete");
-        $("#btnDrop").prop("disabled", true);
         $("#btnDrop").prop("title", "Delete the current alert message");
         $("#settingsIndex").val('1');
+
+        if ($("#messageSelector").val() == 0) {
+            $("#btnDrop").prop("disabled", true);
+        }
     }
 
     function changeMessage() {
@@ -63,7 +65,7 @@ var messages = {}
                     if($staff->getRoleID() == $sv['LvlOfStaff']) {
             ?>
                 <button name="mySettings" class="menuTab btn btn-default" href="#" onclick="showMySettings(); return false;">My Settings</button>
-                <button name="globalSettings" class="menuTab btn btn-default" href="#" onclick="showGlobalSettings(); return false;">Global Settings</button>
+                <button name="globalSettings" class="menuTab btn btn-default" href="#" onclick="showGlobalSettings(); return false;">Global Message Settings</button>
             <?php
                     }
                     else
@@ -101,6 +103,7 @@ var messages = {}
                         $carrier = "";
                     }
                 ?>
+                <!-- My Settings -->
                 <div id="settingsBody" class="modal-body">
                     <div id="mySettingsDiv">
                         <div>
@@ -134,6 +137,7 @@ var messages = {}
                             <label class="custom-control-label" for="muteNotifications">Mute Notifications</label>
                         </div>
                     </div>
+                    <!-- Global Settings -->
                     <div id="globalDiv" hidden>
                         <div class="globalHeader">
                             <div class="selectorWrapper">
