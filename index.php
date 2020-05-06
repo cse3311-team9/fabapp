@@ -174,12 +174,14 @@ function advanceNum($i, $str){
 																			echo("<span style=\"color:orange\" align=\"center\" id=\"q$row[Q_id]\">"."  $row[estTime]  </span>" );
 																		}
 																		array_push($device_array, array("q".$row["Q_id"], $time_seconds));
+																		array_push($device_array, array("q".$row["Q_id"], $time_seconds,$row["Q_id"]));
 																	} elseif ($temp_time == "00:00:00") {
 																		echo("<span align=\"center\" id=\"q$row[Q_id]\">"."  $row[estTime]  </span>" );
 																		//do nothing keeping time at 00:00:00
 																	} else {
 																		echo("<span align=\"center\" id=\"q$row[Q_id]\">"."  $row[estTime]  </span>" );
 																		array_push($device_array, array("q".$row["Q_id"], $time_seconds));
+																		array_push($device_array, array("q".$row["Q_id"], $time_seconds,$row["Q_id"]));
 																	}
 																} ?>
 
@@ -347,7 +349,7 @@ function advanceNum($i, $str){
 											$str_time = preg_replace("/^([\d]{1,2})\:([\d]{2})$/", "00:$1:$2", $row["est_time"]);
 											sscanf($str_time, "%d:%d:%d", $hours, $minutes, $seconds);
 											$time_seconds = $hours * 3600 + $minutes * 60 + $seconds- (time() - strtotime($row["t_start"]) ) + $sv["grace_period"];
-											array_push($device_array, array("t".$row["trans_id"], $time_seconds));
+											array_push($device_array, array("t".$row["trans_id"], $time_seconds,$row["trans_id"]));
 										} else
 											echo("<td align=\"center\">-</td>");
 									} else { ?>
@@ -470,10 +472,12 @@ include_once ($_SERVER['DOCUMENT_ROOT'].'/pages/footer.php');
 ?>
 <script>
 <?php foreach ($device_array as $da) { ?>
-	var time = <?php echo $da[1];?>;
+	debugger
+	var duration='<?php echo $da[1];?>';
 	var display = document.getElementById('<?php echo $da[0];?>');
-	startTimer(time, display);
-
+	var timer = duration,hours,minutes,seconds;
+	var e_id = '<?php echo $da[2];?>';
+	timerLogic(timer,display,e_id);
 <?php } ?>
 	$('#indexTable').DataTable({
 		"iDisplayLength": 25,
@@ -559,5 +563,39 @@ include_once ($_SERVER['DOCUMENT_ROOT'].'/pages/footer.php');
 					"order": []
 					});
 	}
-
+	function timerLogic(timer,display,e_id){
+			setInterval(function () {
+	        if (timer > 0) {
+	            hours = parseInt(timer / 3600, 10);
+	            minutes = parseInt( (timer-(hours*3600))/60, 10);
+	            seconds = parseInt(timer % 60, 10);
+	            hours = hours < 10 ? hours : hours;
+	            minutes = minutes < 10 ? "0" + minutes : minutes;
+	            seconds = seconds < 10 ? "0" + seconds : seconds ;
+				display.textContent = hours + ":" + minutes + ":" + seconds;
+				//check if timer is smaller than equal to ten minutes
+				var timerValue = moment.duration(hours + ":" + minutes + ":" + seconds).asMilliseconds();
+				var alertTime = moment.duration('00:14:00').asMilliseconds();
+				if(timerValue === alertTime){
+					$.ajax({
+						type:"GET",
+						url:'pages/timerNotify?z='+e_id,
+						success:function(data){
+						}
+					})
+				}
+				--timer;
+				} else {
+					hours = Math.abs(parseInt(timer / 3600, 10));
+					minutes = Math.abs(parseInt( (timer+(hours*3600))/60, 10));
+					seconds = Math.abs(parseInt(timer % 60, 10));
+					hours = hours < 10 ? hours : hours;
+					minutes = minutes < 10 ? "0" + minutes : minutes;
+					seconds = seconds < 10 ? "0" + seconds : seconds;
+					display.textContent = "- "+ hours + ":" + minutes + ":" + seconds;
+					display.className="message";
+					--timer;
+				}
+			}, 1000);
+		}
 </script>
