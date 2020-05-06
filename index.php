@@ -173,14 +173,12 @@ function advanceNum($i, $str){
 																		} else {
 																			echo("<span style=\"color:orange\" align=\"center\" id=\"q$row[Q_id]\">"."  $row[estTime]  </span>" );
 																		}
-																		array_push($device_array, array("q".$row["Q_id"], $time_seconds));
 																		array_push($device_array, array("q".$row["Q_id"], $time_seconds,$row["Q_id"]));
 																	} elseif ($temp_time == "00:00:00") {
 																		echo("<span align=\"center\" id=\"q$row[Q_id]\">"."  $row[estTime]  </span>" );
 																		//do nothing keeping time at 00:00:00
 																	} else {
 																		echo("<span align=\"center\" id=\"q$row[Q_id]\">"."  $row[estTime]  </span>" );
-																		array_push($device_array, array("q".$row["Q_id"], $time_seconds));
 																		array_push($device_array, array("q".$row["Q_id"], $time_seconds,$row["Q_id"]));
 																	}
 																} ?>
