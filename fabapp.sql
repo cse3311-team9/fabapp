@@ -68,7 +68,6 @@ SET Name = 'completed_ticket', Message = 'Your ticket has been completed! Please
 
 --If table already created just run this alter table statement
 ALTER TABLE `alert_messages` ADD `EventId` INT NULL DEFAULT NULL AFTER `Message`, ADD UNIQUE (`EventId`);
-
 --
 -- Table structure for table `authrecipients`
 --
