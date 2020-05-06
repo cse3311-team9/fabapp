@@ -1,14 +1,14 @@
 <?php
 
 /***********************************************************************************************************
-*	
+*
 *	@author Jon Le
 *	Edited by: MPZinke on 06.08.19 to improve commenting an logic/functionality of page;
 *	 update in accord with class changes
 *	CC BY-NC-AS UTA FabLab 2016-2019
 *	FabApp V 0.94
 *
-*	DESCRIPTION: look up a ticket by trans_id or operator. Direct to other pages for other 
+*	DESCRIPTION: look up a ticket by trans_id or operator. Direct to other pages for other
 *	 processes.  Reassign location of object.  Add additional material to ticket if not already
 *	 ended.  Unend a ticket by reverting status, t_end
 *	FUTURE: 	-add authorized recipients with looking up ticket
@@ -49,7 +49,7 @@ elseif(isset($_GET["operator"])) {
 			}
 		}
 		else exit_if_error("DB error");
-	} 
+	}
 }
 
 // check permission
@@ -138,7 +138,7 @@ function exit_with_success($message, $redirect=null) {
 <div id="page-wrapper">
 	<div class="row">
 		<div class="col-lg-12">
-			<?php // ticket finished && not sheetgood device, allow shortcut to make new ticket 
+			<?php // ticket finished && not sheetgood device, allow shortcut to make new ticket
 			if($ticket->status->status_id >= $status['total_fail'] && $ticket->device->device_id != $sv["sheet_device"]) {
 			?>
 				<h1 class="page-header">Ticket Details
@@ -190,7 +190,7 @@ function exit_with_success($message, $redirect=null) {
 							<tr>
 								<td>Device</td>
 								<td>
-									<?php echo $ticket->device->name; ?>	
+									<?php echo $ticket->device->name; ?>
 								</td>
 							</tr>
 							<tr>
@@ -213,8 +213,8 @@ function exit_with_success($message, $redirect=null) {
 										</div>
 									</td>
 								</tr>
-							<?php 
-							} 
+							<?php
+							}
 							if($ticket->filename) {
 							?>
 								<tr>
@@ -259,8 +259,8 @@ function exit_with_success($message, $redirect=null) {
 										</div>
 									</td>
 								</tr>
-							<?php 
-							} 
+							<?php
+							}
 							if($ticket->notes) { ?>
 								<tr>
 									<td><i class="fas edit fa-lg"></i>Notes</td>
@@ -278,12 +278,12 @@ function exit_with_success($message, $redirect=null) {
 								</a>
 							</div>
 						</div>
-					<?php 
+					<?php
 					}
 					elseif($ticket->status->status_id < $status["charge_to_acct"] && $ticket->remaining_balance()) { ?>
 						<div class="panel-footer">
 							<div align="right">
-								<?php 
+								<?php
 								if($ticket->device->device_group->is_storable)
 									echo "<a href='/pages/pickup.php?operator=".$ticket->user->operator."'>";
 								else
@@ -322,7 +322,7 @@ function exit_with_success($message, $redirect=null) {
 							<tr>
 								<td>Device</td>
 								<td>
-									<?php echo $ticket->device->name; ?>	
+									<?php echo $ticket->device->name; ?>
 								</td>
 							</tr>
 							<tr>
@@ -374,7 +374,7 @@ function exit_with_success($message, $redirect=null) {
 										<i class='<?php echo $ticket->staff->icon; ?>'></i>";
 									</td>
 								</tr>
-							<?php 
+							<?php
 							}
 							if($ticket->notes) { ?>
 								<tr>
@@ -401,7 +401,7 @@ function exit_with_success($message, $redirect=null) {
 									<td colspan='2'>
 										<?php
 										echo $mu->material->m_name;
-										if($mu->material->color_hex) 
+										if($mu->material->color_hex)
 											echo "<div class=\"color-box\" style=\"background-color: #".$mu->material->color_hex."\"/>\n";
 										?>
 									</td>
@@ -413,7 +413,7 @@ function exit_with_success($message, $redirect=null) {
 								<?php if($mu->material->is_measurable) { ?>
 									<tr class="tablerow">
 										<td> Price </td>
-										<td> 
+										<td>
 											<?php printf("<i class='$sv[currency]'></i> %.2f", $mu->material->price); ?>
 										</td>
 									</tr>
@@ -425,16 +425,16 @@ function exit_with_success($message, $redirect=null) {
 									</tr>
 									<tr>
 										<td> Cost </td>
-										<td> 
+										<td>
 											<?php echo sprintf("<i class='$sv[currency]'></i> %.2f", $mu->material->price * $mu->quantity_used); ?>
 										</td>
 									</tr>
 								<?php } ?>
 							</table>
-						<?php } ?> 
+						<?php } ?>
 					</div> <!-- /.panel-body -->
 					<?php if($staff->roleID >= $role["staff"] && $ticket->status->status_id <= $status["moveable"] &&
-							count($ticket->device->device_group->optional_materials) 
+							count($ticket->device->device_group->optional_materials)
 							+ count($ticket->device->device_group->required_materials) > count($ticket->mats_used)) { ?>
 						<div class="panel-body">
 							<form method='post'>
@@ -484,26 +484,26 @@ function exit_with_success($message, $redirect=null) {
 						</form>
 					</div> <!-- /.panel-body -->
 				</div> <!-- /.panel -->
-				<?php } } 
+				<?php } }
 
 			// —————— REPORT ISSUE ——————
 
-			if($staff->roleID >= $sv['LvlOfStaff'] && ($ticket->status->status_id == $status['total_fail'] 
+			if($staff->roleID >= $sv['LvlOfStaff'] && ($ticket->status->status_id == $status['total_fail']
 			|| $ticket->status->status_id == $status['partial_fail'])) { ?>
 				<div class="panel panel-default">
 					<div class="panel-heading">
 						<i class="fas fa-wrench fa-lg" title="Undo"></i> Service Ticket
 					</div>
 					<div class="panel-body">
-						Since it failed, should we Report an Issue with <?php echo $ticket->device->description; ?>
+						Since it failed, should we Report an Issue with <?php echo $ticket->device->name; ?>
 						<form name="undoForm" method="post" action="/pages/sr_issue.php?d_id=<?php echo $ticket->device->device_id; ?>">
 							<input type="submit" name="issueBtn" class="btn btn-warning" value="Report Issue"/>
 						</form>
 					</div> <!-- /.panel-body -->
 				</div> <!-- /.panel -->
-			<?php } 
+			<?php }
 
-			// ———————— AUTH RECIPIENTS ———————— 
+			// ———————— AUTH RECIPIENTS ————————
 
 			if($authorized_recipients = AuthRecipients::listArs($ticket)) { ?>
 				<div class="panel panel-default">
@@ -514,9 +514,9 @@ function exit_with_success($message, $redirect=null) {
 						<?php echo $authorized_recipients; ?>
 					</div>
 				</div>
-			<?php } 
+			<?php }
 
-			// —————————— STORAGE —————————— 
+			// —————————— STORAGE ——————————
 
 			if(StorageObject::object_is_in_storage($ticket->trans_id)) {
 				$storage = new StorageObject($ticket->trans_id) ?>
@@ -608,7 +608,7 @@ function exit_with_success($message, $redirect=null) {
 				</div>
 			<?php }
 
-		// ————————— ACCT CHARGES ————————— 
+		// ————————— ACCT CHARGES —————————
 
 			//Look for associated charges
 			if($ticket->acct_charge) { ?>
@@ -626,7 +626,7 @@ function exit_with_success($message, $redirect=null) {
 							</tr>
 							<?php foreach ($ticket->acct_charge as $ac) {
 								if($ac->account->a_id == 1) echo"\n\t\t<tr class=\"danger\">";
-								else echo"\n\t\t<tr>";		
+								else echo"\n\t\t<tr>";
 									if(is_object($ac->user)) { ?>
 										<td>
 											<div class="btn-group">
@@ -673,8 +673,8 @@ function exit_with_success($message, $redirect=null) {
 														<li style="padding-left: 5px;"><?php echo $ac->ac_notes; ?></li>
 													</ul>
 												</div>
-											<?php 
-											} 
+											<?php
+											}
 										}
 										else echo "<i class='".$ac->staff->icon." fa-lg'></i>"; ?>
 									</td>
@@ -701,7 +701,7 @@ function exit_with_success($message, $redirect=null) {
 
 
 <form id="printForm" action="" method="post">
-    <input type="text" name="printForm" hidden/>   
+    <input type="text" name="printForm" hidden/>
 </form>
 
 <!--————————————————— MODAL ———————————————–——-->
@@ -720,10 +720,10 @@ function exit_with_success($message, $redirect=null) {
 					<span class='input-group-addon'>Drawer</span>
 					<select id='drawer' class='form-control' onchange='add_to_storage(this);'>
 						<option selected disabled hidden>—</option>
-						<?php 
+						<?php
 						$drawers = StorageDrawer::get_unique_drawers();
 						if($drawers)
-							foreach($drawers as $option) 
+							foreach($drawers as $option)
 								echo "<option value='$option'>$option</option>";
 						else echo "<option>ERROR: Could not get drawer types from DB</option>";
 						?>
@@ -735,7 +735,7 @@ function exit_with_success($message, $redirect=null) {
 			</div>
 			<div class="modal-footer">
 				  <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-			</div> 
+			</div>
 		</div>
 	</div>
 </div>
@@ -760,7 +760,7 @@ function exit_with_success($message, $redirect=null) {
 				<div class="modal-footer">
 					  <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
 					  <button type="submit" class="btn btn-primary" name="aarBtn">Add</button>
-				</div> 
+				</div>
 			</form>
 		</div>
 	</div>
@@ -799,8 +799,8 @@ include_once ($_SERVER['DOCUMENT_ROOT'].'/pages/footer.php');
 			url: "./sub/storage_ajax_requests.php",
 			type: "POST",
 			dataType: "json",
-			data: {	"move_to_new_location" : true, 
-					"drawer" : drawer, 
+			data: {	"move_to_new_location" : true,
+					"drawer" : drawer,
 					"unit" : unit.innerHTML,
 					"trans_id" : <?php echo $ticket->trans_id; ?>
 			},

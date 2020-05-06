@@ -15,18 +15,18 @@ class Service_call {
 	private $staff;
 	private $sl;
 	private $sr;
-	
+
 	public function __construct($sc_id) {
 		global $mysqli;
 		$this->sc_id = $sc_id;
-		
+
 		if ($result = $mysqli->query("
 			 SELECT *
 			 FROM `service_call`
 			 WHERE `sc_id` = '$sc_id';
 		")){
 			$row = $result->fetch_assoc();
-			$this->setDevice($row['device_id']);
+			$this->setDevice($row['d_id']);
 			$this->setSc_id($sc_id);
 			$this->setSc_notes($row['sc_notes']);
 			$this->setSc_time($row['sc_time']);
@@ -38,10 +38,10 @@ class Service_call {
 		} else
 			throw new Exception("Invalid Service Call ID");
 	}
-	
+
 	public static function byDevice($device){
 		global $mysqli;
-		
+
 		if ($result = $mysqli->query("
 			SELECT `service_call`.`sc_id`, `staff_id`, `service_call`.`d_id`, `sl_id`, `sc_time`, `sc_notes`, `solved`, `device_desc`
 			FROM `service_call`
@@ -55,10 +55,10 @@ class Service_call {
 			return "";
 		}
 	}
-	
+
 	public static function call($staff, $device, $sl_id, $sc_notes){
 		global $mysqli;
-		
+
 		$staff_id = $staff->getOperator();
 		if (is_object($device)){
 			$device_id = $device->device_id;
@@ -68,7 +68,7 @@ class Service_call {
 			$device_id = $device;
 		}
 		$sc_notes = htmlspecialchars($sc_notes);
-		
+
 		if ($sl_id == 1){
 			//By default issues are marked complete, as they do not need require additional attention.
 			$query = "INSERT INTO `service_call` (`staff_id`, `d_id`, `sl_id`, `solved`, `sc_notes`, `sc_time`)
@@ -77,7 +77,7 @@ class Service_call {
 			$query = "INSERT INTO `service_call` (`staff_id`, `d_id`, `sl_id`, `solved`, `sc_notes`, `sc_time`)
 				VALUES (?, ?, ?, 'N', ?, CURRENT_TIMESTAMP);";
 		}
-		
+
 		if ( $stmt = $mysqli->prepare($query)){
 			if (!$stmt->bind_param("siis", $staff_id, $device_id, $sl_id, $sc_notes))
 					return "Bind Error 76";
@@ -114,23 +114,23 @@ class Service_call {
 	public function getSc_notes() {
 		return $this->sc_notes;
 	}
-	
+
 	public function getSc_time() {
 		global $sv;
 		return date($sv['dateFormat'],strtotime($this->sc_time));
 	}
-	
+
 	public function getSR(){
 		return $this->sr;
 	}
-	
+
 	public function insert_reply($staff, $status, $sl_id, $sr_notes){
 		global $mysqli;
-		
+
 		if (!Service_lvl::regexID($sl_id)){
 			return "Invalid Service Level Value";
 		}
-		
+
 		$msg = Service_reply::insert_reply($staff, $this->getSc_id(), $sr_notes);
 		if (is_string($msg)){
 			//display error message
@@ -139,15 +139,15 @@ class Service_call {
 		if ($sl_id != $this->getSl()->getSl_id() || $status == "complete"){
 			//Either you can mark a ticket as complete or you can leave it incomplete and change the severity of the issue
 			if ($status == "complete"){
-				$query = "  UPDATE `service_call` 
+				$query = "  UPDATE `service_call`
 							SET `solved` = 'Y'
 							WHERE `service_call`.`sc_id` = ".$this->getSc_id().";";
 			} else {
-				$query = "  UPDATE `service_call` 
+				$query = "  UPDATE `service_call`
 							SET `sl_id` = '$sl_id', `solved` = 'N'
 							WHERE `service_call`.`sc_id` = ".$this->getSc_id().";";
 			}
-			
+
 			//Run query to update status
 			if ($result = $mysqli->query($query)){
 				return true;
@@ -156,11 +156,11 @@ class Service_call {
 			}
 		}
 	}
-	
+
 	//Returns results of open Service Calls
 	public static function openSC(){
 		global $mysqli;
-		
+
 		if ($result = $mysqli->query("
 			SELECT `device_desc`, `sl_id`, `sc_id`, `staff_id`, `sc_time`, `sc_notes`, `solved`
 			FROM `service_call`
@@ -197,7 +197,7 @@ class Service_call {
 	function setSc_notes($sc_notes) {
 		$this->sc_notes = ($sc_notes);
 	}
-	
+
 	function setSr($sc_id){
 		$this->sr = Service_reply::bySc_id($sc_id);
 	}
@@ -205,15 +205,15 @@ class Service_call {
 	function setSc_time($sc_time) {
 		$this->sc_time = $sc_time;
 	}
-	
+
 	function updateNotes($notes){
 		global $mysqli;
-		
+
 		//Prevent script injections
 		$notes = htmlspecialchars($notes);
-		
+
 		if ( $stmt = $mysqli->prepare("
-			UPDATE `service_call` 
+			UPDATE `service_call`
 			SET `sc_notes` = ?
 			WHERE `service_call`.`sc_id` = ?
 		")){
@@ -236,13 +236,13 @@ class Service_call {
 class Service_lvl {
 	private $sl_id;
 	private $msg;
-	
+
 	public function __construct($sl_id) {
 		global $mysqli;
-		
+
 		if (!preg_match("/^\d+$/", $sl_id))
 			throw new Exception("Unable to set status");
-		
+
 		if ($result = $mysqli->query("
 			SELECT *
 			FROM `service_lvl`
@@ -255,11 +255,11 @@ class Service_lvl {
 			throw new Exception("Unable to set status");
 		}
 	}
-	
+
 	public static function getList(){
 		global $mysqli;
 		$slArray = array();
-		
+
 		if ($result = $mysqli->query("
 			SELECT `sl_id`
 			FROM `service_lvl`
@@ -273,10 +273,10 @@ class Service_lvl {
 			return false;
 		}
 	}
-	
+
 	public static function getDot($sl_id){
 		$icon = "circle";
-		
+
 		if($sl_id == 1) {
 			$color = "green";
 		} elseif($sl_id < 7) {
@@ -289,7 +289,7 @@ class Service_lvl {
 
 		echo "<i class='fas fa-$icon fa-lg' style='color:".$color."' id='sl_dot'></i>&nbsp;";
 	}
-	
+
 	public static function regexID($sl_id){
 		global $mysqli;
 
@@ -304,13 +304,13 @@ class Service_lvl {
 		")){
 			if ($result->num_rows == 1)
 				return true;
-		} else 
+		} else
 			return false;
 	}
-	
+
 	public static function sltoMsg($sl_id){
 		global $mysqli;
-		
+
 		if( $result = $mysqli->query("
 			SELECT `msg`
 			FROM `service_lvl`
@@ -348,13 +348,13 @@ class Service_reply {
 	private $sr_time;
 	//objects
 	private $staff;
-	
+
 	public function __construct($sr_id) {
 		global $mysqli;
-		
+
 		if ($result = $mysqli->query("
-			SELECT * 
-			FROM `service_reply` 
+			SELECT *
+			FROM `service_reply`
 			WHERE `sr_id` = $sr_id
 			LIMIT 1;
 		")){
@@ -368,11 +368,11 @@ class Service_reply {
 			}
 		}
 	}
-	
+
 	public static function bySc_id($sc_id){
 		global $mysqli;
 		$sr_array = array();
-		
+
 		if($result = $mysqli->query("
 			SELECT `sr_id`
 			FROM `service_reply`
@@ -382,10 +382,10 @@ class Service_reply {
 				array_push( $sr_array, new self($row['sr_id']) );
 			}
 		}
-		
+
 		return $sr_array;
 	}
-	
+
 	function getSr_id() {
 		return $this->sr_id;
 	}
@@ -404,16 +404,16 @@ class Service_reply {
 
 	function getSr_time() {
 		global $sv;
-		
+
 		return date($sv['dateFormat'],strtotime($this->sr_time));
 	}
-	
+
 	public static function insert_reply($staff, $sc_id, $sr_notes){
 		global $mysqli;
-		
+
 		$staff_id = $staff->getOperator();
 		$sr_notes = htmlspecialchars($sr_notes);
-		
+
 		if ( $stmt = $mysqli->prepare("
 			INSERT INTO `service_reply` (`sc_id`, `staff_id`, `sr_notes`, `sr_time`)
 			VALUES (?, ?, ?, CURRENT_TIMESTAMP);
@@ -428,7 +428,7 @@ class Service_reply {
 		} else {
 			return "SR Prep Error 98";
 		}
-		
+
 		return true;
 	}
 

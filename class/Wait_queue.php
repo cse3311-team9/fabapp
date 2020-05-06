@@ -89,7 +89,6 @@ class Wait_queue {
                   (`operator`,`dev_id`,`Devgr_id`,`start_date`, `Op_email`, `Op_phone`, `carrier`)
                 VALUES
                     ('$operator','$d_id','$dg_id',CURRENT_TIMESTAMP, '$email', '$phone', '$carrier_name');
-
             ")){
                 Notifications::sendNotification($mysqli->insert_id, "FabApp Notification", "You have signed up for FabApp notifications. Your Wait Ticket number is: ".$mysqli->insert_id."", 'From: FabApp Notifications' . "\r\n" .'', 0);
                 Wait_queue::calculateDeviceWaitTimes();
@@ -230,7 +229,7 @@ class Wait_queue {
         global $mysqli;
         if ($mysqli->query("
             UPDATE `wait_queue`
-            SET `End_date` = CURRENT_TIMESTAMP
+            SET `End_date` = CURRENT_TIMESTAMP, `valid` = 'N'
             WHERE `Q_id` = $q_id;
         ")) {
             //echo("\nSuccessfully deleted $q_id contact info!");
@@ -339,7 +338,6 @@ class Wait_queue {
                     LEFT JOIN (SELECT `t_start`, `t_end`, `est_time`, `d_id`, `status_id` FROM `transactions` WHERE `status_id` < $status[total_fail]) as t
                     ON `devices`.`d_id` = `t`.`d_id`
                     WHERE `public_view` = 'Y' AND `device_group`.`dg_id` = $device_group AND `devices`.`d_id` NOT IN (
-
                         SELECT `d_id`
                         FROM `service_call`
                         WHERE `solved` = 'N' AND `sl_id` >= 7

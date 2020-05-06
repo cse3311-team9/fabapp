@@ -359,10 +359,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['removeBtn']) && $staff
                                                                     echo("<span align=\"center\" id=\"q$row[Q_id]\">"."  $row[estTime]  </span>" );
                                                                     array_push($device_array, array("q".$row["Q_id"], $time_seconds));
 
-                                                                       //header("Refresh: 600;");
-                                                                    //send notifiaction if the time is less than 3 minutes
-                                                                    if ($time_seconds<180) {
-                                                                      Notifications::sendLastNotification($row['Operator'], "FabApp Notification","You have less than 3 minutes waiting time left. Please be ready to go to FabLab." , 'From: FabApp Notifications' . "\r\n" .'', 0);
+                                                                    //Refresh the page very 5 minutes if the page remains idle
+                                                                    header("Refresh: 300;");
+
+                                                                    //send notifiaction if the time is less than 5 minutes
+                                                                   if ($time_seconds<300) {
+                                                                    Notifications::sendNotification($row['Q_id'], "FabApp Notification","You have less than 5 minutes waiting time left. Please be ready to go to FabLab." , 'From: FabApp Notifications' . "\r\n" .'', 0);
                                                                     }
                                                                 }
                                                             } ?>

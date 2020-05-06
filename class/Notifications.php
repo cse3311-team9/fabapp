@@ -83,6 +83,9 @@ class Notifications {
     }
 
 
+//This fuction takes the Student ID, Subject of the meassage and actual message and sends email and sms notification to
+//the associated student
+//It also sets last contact to true to denote that user is already contacted and now their information can be deleted
         public static function sendLastNotification($op, $subject, $message, $markContact) {
             global $mysqli;
             $hasbeenContacted = $setLastContacted = false;
@@ -92,15 +95,16 @@ class Notifications {
             if ($result = $mysqli->query("
                 SELECT `Op_phone` AS `Phone`, `Op_email` AS `Email`, `carrier` AS `Provider`
                 FROM `wait_queue`
-                WHERE `Operator` = $op AND valid='Y'
+                WHERE `Operator` = $op
             "))
             {
+              //fetch every result that matches this condotion
                 $row = $result->fetch_assoc();
                 $phone = $row['Phone'];
                 $email = $row['Email'];
                 $provider = $row['Provider'];
 
-
+              //sends sms notification if the phone number is present in the datatbase
                 if (!empty($phone)) {
                     if ($result = $mysqli->query("
                         SELECT `email`
@@ -120,6 +124,7 @@ class Notifications {
                     }
                 }
 
+              //sends email notification if the email address is present in trhe database
                 if (!empty($email)) {
                     $hasbeenContacted = self::SendMail($email, $subject, $message);
 
@@ -128,15 +133,26 @@ class Notifications {
                     }
                 }
 
+
+
                 if ($setLastContacted == true) {
                     // Update the database to display that the student has been contacted
                     if ($mysqli->query("
                         UPDATE `wait_queue`
                         SET `last_contact` = CURRENT_TIMESTAMP
-                        WHERE `Operator` = $op AND valid='Y'
+                        WHERE `Operator` = $op
                     ")) {
                     }
                 }
+
+
+                //if sucess delete the contact
+                 $data = Wait_queue::deleteContactInfo($op);
+                  if (is_string($data)) {
+                    return $data;
+                  }
+
+
                 return $hasbeenContacted;
             }
           }

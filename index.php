@@ -19,17 +19,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 		$i = $sv['next']+1;
 		wait($i);
 		advanceNum($i, "next");
-		
+
 	} elseif( isset($_POST['print_e']) ){
 		$i = $sv['eNext']+1;
 		wait("E".$i);
 		advanceNum($i, "eNext");
-		
+
 	} elseif( isset($_POST['print_b']) ){
 		$i = $sv['bNext']+1;
 		wait("B".$i);
 		advanceNum($i, "bNext");
-		
+
 	} elseif( isset($_POST['print_m']) ){
 		$i = $sv['mNext']+1;
 		wait("M".$i);
@@ -38,7 +38,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 }
 function advanceNum($i, $str){
 	global $mysqli;
-	
+
 	if ($result = $mysqli->query("
 	  UPDATE site_variables
 	  SET value = $i
@@ -84,9 +84,9 @@ function advanceNum($i, $str){
 										</li>
 										<?php //create a way to display the first wait_queue table tab by saving which dg_id it is to variable 'first_dgid'
 										if ($count == 0){
-											$first_dgid = $row["dg_id"];  
-										}   
-										$count++;																  
+											$first_dgid = $row["dg_id"];
+										}
+										$count++;
 									}
 								} ?>
 							</ul>
@@ -95,14 +95,14 @@ function advanceNum($i, $str){
 								if ($Tabresult = Wait_queue::getTabResult()) {
 									while($tab = $Tabresult->fetch_assoc()){
 										$number_of_queue_tables++;
-										
+
 										// Calculate the wait queue timer by granular wait of a device group
 										if ($tab["granular_wait"] == 'Y'){
-											Wait_queue::calculateDeviceWaitTimes(); 
+											Wait_queue::calculateDeviceWaitTimes();
 										} else {
 											Wait_queue::calculateWaitTimes();
-										} 
-										
+										}
+
 										// Give all of the dynamic tables a name so they can be called when their tab is clicked ?>
 										<div class="tab-pane fade <?php if ($first_dgid == $tab["dg_id"]) echo "in active";?>" <?php echo("id=\"".$tab["dg_id"]."\"") ?> >
 											<table class="table table-striped table-bordered table-hover" <?php echo("id=\"waitTable_$number_of_queue_tables\"") ?>>
@@ -113,7 +113,7 @@ function advanceNum($i, $str){
 														<?php if ($tab["dg_id"]==2) { ?> <th><i class="far fa-flag"></i> Device Group</th><?php } ?>
 														<?php if ($tab["dg_id"]!=2) { ?> <th><i class="far fa-flag"></i> Device</th><?php } ?>
 														<th><i class="far fa-clock"></i> Time Left</th>
-														<?php if ($staff && ($staff->getRoleID() >= $sv['LvlOfStaff'])) { ?> 
+														<?php if ($staff && ($staff->getRoleID() >= $sv['LvlOfStaff'])) { ?>
 															<th><i class="far fa-flag"></i> Alerts</th>
 														<?php } ?>
 													</tr>
@@ -127,7 +127,7 @@ function advanceNum($i, $str){
 															WHERE valid = 'Y' and WQ.devgr_id=$tab[dg_id]
 															ORDER BY Q_id;
 													")) {
-   
+
 
 														while ($row = $result->fetch_assoc()) {
 															$user = Users::withID($row['Operator']);?>
@@ -138,7 +138,7 @@ function advanceNum($i, $str){
 																	<?php echo($row['Q_id']) ?>
 																</td>
 
-																<!-- Operator ID --> 
+																<!-- Operator ID -->
 																<?php if ($staff && ($staff->getRoleID() >= $sv['LvlOfStaff'])) { ?>
 																	<td>
 																		<a class="<?php echo $user->getIcon()?> fa-lg" title="<?php echo($row['Operator']) ?>"  href="/pages/waitUserInfo.php?q_id=<?php echo $row["Q_id"]?>&loc=0"></a>
@@ -185,7 +185,7 @@ function advanceNum($i, $str){
 
 																	<!-- Last Contact Time -->
 																<?php if ($staff && ($staff->getRoleID() >= $sv['LvlOfStaff'])) { ?>
-																	<?php if (isset($row['last_contact'])) { ?> 
+																	<?php if (isset($row['last_contact'])) { ?>
 																		<i class="far fa-bell" align="center" title="Last Alerted @ <?php echo(date($sv['dateFormat'], strtotime($row['last_contact']))) ?>"></i> <?php
 																	} ?>
 																<?php } ?>
@@ -193,8 +193,8 @@ function advanceNum($i, $str){
 
 																<!-- Send an Alert -->
 																<?php if ($staff && ($staff->getRoleID() >= $sv['LvlOfStaff'])) { ?>
-																<td> 
-																	<?php if (!empty($row['Op_phone']) || !empty($row['Op_email'])) { ?> 
+																<td>
+																	<?php if (!empty($row['Op_phone']) || !empty($row['Op_email'])) { ?>
 																		<div style="text-align: center">
 																			<?php //prepare message
 																			if ( $row['device_desc'] == ""){
@@ -205,7 +205,7 @@ function advanceNum($i, $str){
 																				$msg = "$row[device_desc] is now available. Please make your way to the FabLab. You have until ";
 																			}
 																			?>
-																			<button class="<?php if (isset($row['last_contact'])){echo "btn btn-xs btn-warning";} else{echo "btn btn-xs btn-primary";}?>" data-target="#removeModal" data-toggle="modal" 
+																			<button class="<?php if (isset($row['last_contact'])){echo "btn btn-xs btn-warning";} else{echo "btn btn-xs btn-primary";}?>" data-target="#removeModal" data-toggle="modal"
 																					onclick="sendManualMessage(<?php echo $row["Q_id"]?>, '<?php echo $msg;?>', 0)">
 																				<!-- make note that adding explanation points may cause errors with notifications -->
 																					Send Alert
@@ -250,7 +250,7 @@ function advanceNum($i, $str){
 												<?php // Load all of the device groups that are being waited for - signified with a 'DG' in front of the value attribute
 													if ($result = $mysqli->query("
 															SELECT DISTINCT D.`device_desc`, D.`dg_id`, D.`d_id`
-															FROM `devices` D 
+															FROM `devices` D
 															JOIN `wait_queue` WQ on D.`dg_id` = WQ.`Devgr_id`
 															LEFT JOIN (SELECT trans_id, t_start, t_end, d_id, operator, status_id FROM transactions WHERE status_id < $status[total_fail] ORDER BY trans_id DESC) as t
 															ON D.`d_id` = t.`d_id`
@@ -266,7 +266,7 @@ function advanceNum($i, $str){
 														}
 													} else {
 														die ("There was an error loading the device groups.");
-													} ?> 
+													} ?>
 											</select>
 										</td>
 									</tr>
@@ -309,7 +309,7 @@ function advanceNum($i, $str){
 							FROM `devices`
 							JOIN `device_group`
 							ON `devices`.`dg_id` = `device_group`.`dg_id`
-							LEFT JOIN (SELECT trans_id, t_start, est_time, d_id, status_id FROM transactions WHERE status_id < $status[total_fail] ORDER BY trans_id DESC) as t 
+							LEFT JOIN (SELECT trans_id, t_start, est_time, d_id, status_id FROM transactions WHERE status_id < $status[total_fail] ORDER BY trans_id DESC) as t
 							ON `devices`.`d_id` = `t`.`d_id`
 							WHERE public_view = 'Y'
 							ORDER BY `trans_id` DESC, `device_desc` ASC
@@ -348,12 +348,12 @@ function advanceNum($i, $str){
 											sscanf($str_time, "%d:%d:%d", $hours, $minutes, $seconds);
 											$time_seconds = $hours * 3600 + $minutes * 60 + $seconds- (time() - strtotime($row["t_start"]) ) + $sv["grace_period"];
 											array_push($device_array, array("t".$row["trans_id"], $time_seconds));
-										} else 
+										} else
 											echo("<td align=\"center\">-</td>");
 									} else { ?>
 										<td align="right"></td>
 										<td>
-											<?php if($row['url'] && (preg_match($sv['ip_range_1'],getenv('REMOTE_ADDR')) || preg_match($sv['ip_range_2'],getenv('REMOTE_ADDR'))) ){ 
+											<?php if($row['url'] && (preg_match($sv['ip_range_1'],getenv('REMOTE_ADDR')) || preg_match($sv['ip_range_2'],getenv('REMOTE_ADDR'))) ){
 												Devices::printDot($staff, $row['d_id']);
 												echo ("<a href=\"http://".$row["url"]."\">".$row["device_desc"]."</a>");
 											} else {
@@ -473,7 +473,7 @@ include_once ($_SERVER['DOCUMENT_ROOT'].'/pages/footer.php');
 	var time = <?php echo $da[1];?>;
 	var display = document.getElementById('<?php echo $da[0];?>');
 	startTimer(time, display);
-	
+
 <?php } ?>
 	$('#indexTable').DataTable({
 		"iDisplayLength": 25,
@@ -532,7 +532,7 @@ include_once ($_SERVER['DOCUMENT_ROOT'].'/pages/footer.php');
 		<?php } ?>
 	}, 5000);
 <?php } ?>
-	
+
 	function change_group(){
 		if (window.XMLHttpRequest) {
 			// code for IE7+, Firefox, Chrome, Opera, Safari
@@ -546,11 +546,11 @@ include_once ($_SERVER['DOCUMENT_ROOT'].'/pages/footer.php');
 				document.getElementById("processOperator").innerHTML = this.responseText;
 			}
 		};
-		
+
 		xmlhttp.open("GET","/pages/sub/getWaitQueueID.php?val="+ document.getElementById("devGrp").value, true);
 		xmlhttp.send();
 	}
-	
+
 	var str;
 	for(var i=1; i<= <?php echo $number_of_queue_tables;?>; i++){
 		str = "#waitTable_"+i
@@ -559,5 +559,5 @@ include_once ($_SERVER['DOCUMENT_ROOT'].'/pages/footer.php');
 					"order": []
 					});
 	}
-	
+
 </script>

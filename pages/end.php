@@ -62,7 +62,7 @@ elseif($staff->getRoleID() < $role['staff'])
 // cost associated; get attributes from user
 if($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['end_button'])) {
 
-  // This is the defaul message that is sent when the ticket is completed succesfully
+  // This is the default message that is sent when the ticket is completed succesfully
 	$sv['print_notification_message']="Thank you for using FabLab service.";
 
 	// get material status and quanity
@@ -87,7 +87,10 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['end_button'])) {
 	// completely failed ticket; nothing to pay for
 	if($ticket_status == $status['total_fail']) {
 		$_SESSION['success_msg'] = "Ticket successfully ended.";
-		$sv['print_notification_message']= "Your ticket failes because ".$ticket_notes;
+
+    // update the final message to be sent to the user if the ticket completely fails
+		// update the final message with the notes that are added by the staff at the time of closing the tickets
+		$sv['print_notification_message']= "Sorry. Your ticket couldn't be completed succesfully. Note: ".$ticket_notes;
 		header("Location:./lookup.php?trans_id=$trans_id");
 	}
 	// store object
@@ -104,6 +107,9 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['end_button'])) {
 		$ticket->edit_transaction_information(array("status_id" => $status['charge_to_acct'], "notes" => $ticket_notes));
 		$_SESSION['success_msg'] = 	"There is no balance on the ticket. It is finished and ".
 											"learner is good to go.";
+
+		// update the final message when the ticket is completed succesfully
+		// update the final message with the notes that are added by the staff at the time of closing the tickets
     $sv['print_notification_message'] = $sv['print_notification_message']."\n".$ticket_notes;
 		header("Location:./lookup.php?trans_id=$trans_id");
 	}
@@ -115,12 +121,6 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['end_button'])) {
 
 	//send Notofication when the ticket is ended
 			$success = Notifications::sendLastNotification($ticket->user->operator, "FabApp Notification",$sv['print_notification_message'] , 'From: FabApp Notifications' . "\r\n" .'', 0);
-
-	   //if sucess delete the contact
-		  $data = Wait_queue::deleteContactInfo($ticket->user->operator);
-		   if (is_string($data)) {
-			   return $data;
-			 }
 }
 
 
@@ -610,14 +610,10 @@ include_once($_SERVER['DOCUMENT_ROOT'].'/pages/footer.php');
 		if(ticket_status == <?php echo $status['cancelled']; ?>)
 			$(`.mat_used_select option[value='${<?php echo $status['failed_mat']; ?>}']`).hide();
 		else $(`.mat_used_select option[value='${<?php echo $status['failed_mat']; ?>}']`).show();
-
 		if(ticket_status == <?php echo $status["stored"]; ?>)
 			reset_and_show_storage_modal();
 	}
-
-
 	// ———— INPUT-STATUS RELATIONSHIP ————
-
 	// change value to 0 if not used; reset value if changed back
 	function adjust_input_for_status(status_element) {
 		var input = input_for_status(status_element);
@@ -636,12 +632,9 @@ include_once($_SERVER['DOCUMENT_ROOT'].'/pages/footer.php');
 		adjust_parent_input(input_element);
 		adjust_balances();
 	}
-
-
 	// auto select statuses based on input values
 	function adjust_status_for_input(input_element) {
 		var mu_input = new Input(input_element);
-
 		// don't allow non-zero elements to have "unused" status
 		if(mu_input.quantity() && mu_input.status.value == <?php echo $status['unused']; ?>)
 			mu_input.status.selectedIndex = "0";
@@ -649,10 +642,7 @@ include_once($_SERVER['DOCUMENT_ROOT'].'/pages/footer.php');
 		else if(!mu_input.quantity())
 			mu_input.status.value = <?php echo $status['unused']; ?>;
 	}
-
-
 	// ———— STATUS UTILITY ————
-
 	// check if all of the materials have the same status as status passed
 	function all_material_status_are(status) {
 		var materials_statuses = document.getElementsByClassName("mat_used_select");
@@ -660,15 +650,11 @@ include_once($_SERVER['DOCUMENT_ROOT'].'/pages/footer.php');
 			if(parseInt(materials_statuses[x].value) != status) return false;
 		return true;
 	}
-
-
 	// return Input object for a status element
 	function input_for_status(status_object) {
 		var mat_used_id = mat_used_id_of_element(status_object);
 		return new Input(document.getElementById(mat_used_id+"-input"));
 	}
-
-
 	//
 	function set_status_for_all_materials_to_used_if_status_quantity_not_null() {
 		var materials_statuses = document.getElementsByClassName("mat_used_select");
@@ -677,18 +663,14 @@ include_once($_SERVER['DOCUMENT_ROOT'].'/pages/footer.php');
 			if(materials_statuses[x].classList.contains("measurable") && input_for_status(materials_statuses[x]).quantity())
 				materials_statuses[x].value = <?php echo $status["used"]; ?>;
 	}
-
-
 	// ————————————— ADD NEW MATERIAL USED —————————————
 	// ———————————————————————————————————————
-
 	/* AJAX: add mat_used to DB for transaction.  If preexisting group, add material to group.
 	If preexisting (ungrouped) material, create group.  Otherwise, add material input to end
 	of table. */
 	function add_new_material_used(m_id) {
 		if(isNaN(parseInt(m_id))) return;
 		if(!confirm("Are you sure you would like to add another material to this transaction?")) return;
-
 		// add_new_material: request function from page (new material instance created, return HTML)
 		// edit_request: request coming from edit.php (add functions/staff row)
 		$.ajax({
@@ -705,34 +687,26 @@ include_once($_SERVER['DOCUMENT_ROOT'].'/pages/footer.php');
 					alert(response["error"]);
 					return;
 				}
-
 				update_material_display(response);
-
 				alert("Successfully added "+response["material_name"]+" to materials");
 				$(`#new_material`).val("");
 			}
 		});
 	}
-
-
 	// split material used into two mat_used instances with the same material
 	function split(m_id) {
 		add_new_material_used(m_id);
 	}
-
-
 	// add mat_used to page
 	function update_material_display(response) {
 		// delete newly grouped prior instance from page
 		if(response["grouplength"] == 2)
 			document.getElementsByClassName(`${response["parent_id"]}-child`)[0].parentElement.closest("table").remove();
-
 		// add to table (1, 2) (3)
 		if(response["grouplength"] < 3)
 			document.getElementById("mats_used").innerHTML += response["material_HTML"];
 		else
 			document.getElementById(`${response["parent_id"]}-children_display_row`).children[0].innerHTML += response["material_HTML"];
-
 		var new_mat_used = document.getElementById(response["mu_id"]+"-table");
 		// color if new group (2) (do not need for grouplength of 1 b/c automatically highlighted)
 		if(response["grouplength"] == 2) {
@@ -741,16 +715,12 @@ include_once($_SERVER['DOCUMENT_ROOT'].'/pages/footer.php');
 			new_entrant.style["border-left"] = `#${color} 2px solid`;  // add color to part
 			new_entrant.getElementsByTagName("td")[0].style["background-color"] = `#${color}`;  // color top bar (row) of table
 		}
-
 		// highlight table and scroll to change (*)
 		new_mat_used.style.border = "#00FF00 8px solid";
 		location.href = `#${response["mu_id"]}-table`;
 	}
-
-
 	// ————————————–—— END CONFIRMATION ——————————————
 	// ———————————————————————————————————————
-
 	function table_is_not_properly_populated(materials, ticket_status) {
 		if(isNaN(ticket_status.value)) {
 			alert("Please select a ticket status");
@@ -761,10 +731,8 @@ include_once($_SERVER['DOCUMENT_ROOT'].'/pages/footer.php');
 			alert("You must state how the ticket failed");
 			return true;
 		}
-
 		// mats_used listed but none accounted for: error in get_and_sort_materials()
 		if(!materials && document.getElementsByClassName("mat_used_select").length) return true;
-
 		// no material is marked as failed && not all are unused: a failed ticket requires a fail material or all to be null
 		if((ticket_status.value == <?php echo $status['partial_fail']; ?> || ticket_status.value == <?php echo $status['total_fail']; ?>)
 		&& (!any(materials, function(part, value) {return part['status'].value == value;}, <?php echo $status['failed_mat']; ?>)
@@ -776,15 +744,11 @@ include_once($_SERVER['DOCUMENT_ROOT'].'/pages/footer.php');
 		}
 		return false;
 	}
-
-
-
 	// get information from page and put into confirmation modal
 	function populate_end_modal() {
 		// ---- ticket ----
 		var ticket_status = document.getElementById("ticket_status");
 		var ticket_status_name = ticket_status.options[ticket_status.selectedIndex].text;
-
 		document.getElementById("ticket_status_confirmation").innerHTML =
 			confirmation_cell_format('ticket_status', `<h5>${ticket_status_name}</h5>`, ticket_status.value);
 

@@ -12,7 +12,7 @@
 	<meta name="description" content="FabApp, track your equipment">
 	<meta name="author" content="UTA FabLab">
 	<link rel="shortcut icon" href="/images/fa-icon.png" type="image/png">
-	
+
 	<link href="/vendor/blackrock-digital/css/sb-admin-2.css" rel="stylesheet">
 	<link href="/vendor/bootstrap/css/bootstrap.css" rel="stylesheet">
 	<link href="/vendor/bs-datetimepicker/css/bootstrap-datetimepicker.min.css" rel="stylesheet">
@@ -158,7 +158,7 @@ include_once ($_SERVER['DOCUMENT_ROOT'].'/pages/sub/notificationSettings_Modal.p
 				<!--php class Staff if not logged in-->
 				<?php if(!isset($staff)){ ?>
 					<li class="dropdown">
-						<a class="dropdown-toggle" data-toggle="dropdown" href="#" id="loginlink"> 
+						<a class="dropdown-toggle" data-toggle="dropdown" href="#" id="loginlink">
 							<i class="fas fa-sign-in-alt fa-lg"></i> <i class="fas fa-caret-down"></i>
 						</a>
 						<ul class="dropdown-menu dropdown-alerts">
@@ -223,7 +223,7 @@ include_once ($_SERVER['DOCUMENT_ROOT'].'/pages/sub/notificationSettings_Modal.p
 							</li>
 							<li class="divider" style="margin-bottom: 0;"></li>
 							<li>
-								<button type="button" class="btn btn-info btn-block" data-toggle="modal" data-target="#settingsModal" 
+								<button type="button" class="btn btn-info btn-block" data-toggle="modal" data-target="#settingsModal"
 								style="background-color: lightgrey; color: black; border-color: black;">
 									<i class="fas fa-cog"></i>  Notification Settings
 								</button>
@@ -244,7 +244,7 @@ include_once ($_SERVER['DOCUMENT_ROOT'].'/pages/sub/notificationSettings_Modal.p
 						<!-- /.dropdown-user -->
 					</li>
 					<!-- /.dropdown -->
-			<?php }?>	
+			<?php }?>
 			</ul>
 			<!-- /.navbar-top-links -->
 			<div class="navbar-default sidebar" role="navigation">
@@ -257,7 +257,7 @@ include_once ($_SERVER['DOCUMENT_ROOT'].'/pages/sub/notificationSettings_Modal.p
 							<li>
 								<a href="/admin/error.php"><i class="fas fa-bolt"></i> Error</a>
 							</li>
-						<?php } 
+						<?php }
 						if(isset($staff) && $staff->getRoleID() >= $sv['LvlOfLead']) { ?>
 							<li>
 								<a href="#"><i class="fas fa-warehouse"></i> Inventory<span class="fas fa-angle-left"></span></a>
@@ -279,7 +279,7 @@ include_once ($_SERVER['DOCUMENT_ROOT'].'/pages/sub/notificationSettings_Modal.p
 								</ul>
 								<!-- /.nav-second-level -->
 							</li>
-						<?php } 
+						<?php }
 						else {
 							if(isset($staff) && $staff->getRoleID() >= $sv['LvlOfStaff']) { ?>
 								<li>
@@ -300,7 +300,7 @@ include_once ($_SERVER['DOCUMENT_ROOT'].'/pages/sub/notificationSettings_Modal.p
 							<li>
 								<a href="#" id="searchLink"><i class="fas fa-search"></i> Look-Up By<span class="fas fa-angle-left"></span></a>
 								<ul class="nav nav-second-level">
-								<form name="searchForm" method="POST" action="" autocomplete="off"  onsubmit="return validateNum('searchForm')"> 
+								<form name="searchForm" method="POST" action="" autocomplete="off"  onsubmit="return validateNum('searchForm')">
 									<li class="sidebar-radio">
 										<input type="radio" name="searchType" value="s_trans" id="s_trans" checked onchange="searchF()" onclick="searchF()"><label for="s_trans">Ticket</label>
 										<input type="radio" name="searchType" value="s_operator" id="s_operator" onchange="searchF()" onclick="searchF()"><label for="s_operator">ID #</label>
@@ -339,7 +339,7 @@ include_once ($_SERVER['DOCUMENT_ROOT'].'/pages/sub/notificationSettings_Modal.p
 								<li>
 									<a href="/admin/now_serving.php"><i class="fas fa-list-ol"></i> Now Serving</a>
 								</li>
-							<?php 
+							<?php
 							}
 						}
 						if (isset($staff) && ($staff->getRoleID() >=  $sv['LvlOfStaff'] || $staff->getRoleID() ==  $sv['serviceTechnican'])) { ?>
@@ -383,7 +383,7 @@ include_once ($_SERVER['DOCUMENT_ROOT'].'/pages/sub/notificationSettings_Modal.p
 							<li>
 								<a href="/pages/wait_ticket.php"><i class="fas fa-list-ol"></i> Wait Queue Ticket</a>
 							</li>
-						<?php } 
+						<?php }
 						if(isset($staff) && $staff->getRoleID() >= 10) {
 						?>
 							<li>
